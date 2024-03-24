@@ -154,24 +154,25 @@
         }
 
         $("#PTDate").html(moment(date).format('MMMM DD, YYYY'));
-        $("#fajr").html(star[0] + moment(prayerTimes.fajr).tz('America/New_York').format('h:mm A'));
-        $("#sunrise").html(moment(prayerTimes.sunrise).tz('America/New_York').format('h:mm A'));
-        $("#dhuhr").html(star[1] + moment(prayerTimes.dhuhr).tz('America/New_York').format('h:mm A'));
-        $("#asr").html(star[2] + moment(prayerTimes.asr).tz('America/New_York').format('h:mm A'));
-        $("#maghrib").html(star[3] + moment(prayerTimes.maghrib).tz('America/New_York').format('h:mm A'));
-        $("#isha").html(star[4] + moment(prayerTimes.isha).tz('America/New_York').format('h:mm A'));
-        //$("#midnight").html(moment(sunnahTimes.middleOfTheNight).tz('America/New_York').format('MMMM DD, h:mm A'));
-        //$("#lastthird").html(moment(sunnahTimes.lastThirdOfTheNight).tz('America/New_York').format('MMMM DD, h:mm A'));
+        //$("#fajr").html(star[0] + moment(prayerTimes.fajr).tz('America/New_York').format('h:mm A'));
+        $("#fajr").html(star[0] + moment(prayerTimes.fajr).format('h:mm A'));
+        $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
+        $("#dhuhr").html(star[1] + moment(prayerTimes.dhuhr).format('h:mm A'));
+        $("#asr").html(star[2] + moment(prayerTimes.asr).format('h:mm A'));
+        $("#maghrib").html(star[3] + moment(prayerTimes.maghrib).format('h:mm A'));
+        $("#isha").html(star[4] + moment(prayerTimes.isha).format('h:mm A'));
+        //$("#midnight").html(moment(sunnahTimes.middleOfTheNight).format('MMMM DD, h:mm A'));
+        //$("#lastthird").html(moment(sunnahTimes.lastThirdOfTheNight).format('MMMM DD, h:mm A'));
         $("#qibla").html(Math.round(adhan.Qibla(coordinates) * 100) / 100 + "&deg;");
         $("#latLong").html(lat +  ", " + long);
 
 
         if ($.inArray(prayerTimes.currentPrayer(), ['isha']) > 0 ) {
-          var countDownDate = moment(prayerTimes.fajr).tz('America/New_York');
+          var countDownDate = moment(prayerTimes.fajr);
           var nextP = "Fajr";
 
         } else {
-          var countDownDate = moment(prayerTimes.maghrib).tz('America/New_York');
+          var countDownDate = moment(prayerTimes.maghrib);
           var nextP = "Magrib";
         }
 
