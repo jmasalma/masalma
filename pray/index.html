@@ -115,18 +115,38 @@
       }
 
 
-      function gregorianToHijri(gy, gm, gd) {
-        // ToDo:...
-        //use fordetecting ramadan, else show normal prayer time and next pryer countdown
-      }
 
 
 
       function useLocation(lat, long) {
 
         const coordinates = new adhan.Coordinates(lat, long);
-        const params = adhan.CalculationMethod.NorthAmerica();
         const date = new Date();
+
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        if (tz.includes("America")) {
+          var params = adhan.CalculationMethod.NorthAmerica();
+        } else if (tz.includes("Dubai")) {
+          var params = adhan.CalculationMethod.Dubai();
+        } else if (tz.includes("Africa")) {
+          var params = adhan.CalculationMethod.Egyptian();
+        } else if (tz.includes("Karachi")) {
+          var params = adhan.CalculationMethod.Karachi();
+        } else if (tz.includes("Riyadh")) {
+          var params = adhan.CalculationMethod.UmmAlQura();
+        } else if (tz.includes("Qatar")) {
+          var params = adhan.CalculationMethod.Qatar();
+        } else if (tz.includes("Singapore")) {
+          var params = adhan.CalculationMethod.Singapore();
+        } else if (tz.includes("Tehran")) {
+          var params = adhan.CalculationMethod.Tehran();
+        } else if (tz.includes("Istanbul")) {
+          var params = adhan.CalculationMethod.Turkey();
+        } else {
+          var params = adhan.CalculationMethod.Other(); // Or MoonsightingCommittee or MuslimWorldLeague or Kuwait?
+        }
+
 
         var prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
 
@@ -157,8 +177,17 @@
             star[4] = aStar;
             break;
         }
+        
 
-        $("#PTDate").html(moment(date).format('MMMM DD, YYYY'));
+
+
+
+        //console.log(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()));
+        var higriMonth = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {month: 'long',}).format(Date.now());
+
+        
+
+        $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
         //$("#fajr").html(star[0] + moment(prayerTimes.fajr).tz('America/New_York').format('h:mm A'));
         $("#fajr").html(star[0] + moment(prayerTimes.fajr).format('h:mm A'));
         $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
@@ -172,14 +201,27 @@
         $("#latLong").html(lat +  ", " + long);
 
 
-        if ($.inArray(prayerTimes.currentPrayer(), ['isha']) > 0 ) {
-          var countDownDate = moment(prayerTimes.fajr);
-          var nextP = "Fajr";
 
+
+
+
+
+        if (higriMonth == "Ramadan") {
+          if ($.inArray(prayerTimes.currentPrayer(), ['isha']) > 0 ) {
+            var countDownDate = moment(prayerTimes.fajr);
+            var nextP = "Fajr";
+  
+          } else {
+            var countDownDate = moment(prayerTimes.maghrib);
+            var nextP = "Magrib";
+          }
         } else {
-          var countDownDate = moment(prayerTimes.maghrib);
-          var nextP = "Magrib";
+          var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+          var nextP = prayerName(prayerTimes.nextPrayer());
         }
+
+
+
 
         var x = setInterval(function() {
           var now = new Date().getTime();
