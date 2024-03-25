@@ -207,17 +207,24 @@
 
 
         if (higriMonth == "Ramadan") {
-          if ($.inArray(prayerTimes.currentPrayer(), ['isha']) > 0 ) {
-            var countDownDate = moment(prayerTimes.fajr);
-            var nextP = "Fajr";
-  
-          } else {
+          //console.log(higriMonth);
+          //console.log(prayerTimes.currentPrayer());
+          if (prayerTimes.nextPrayer() == 'magrib') {
+            //console.log("next is magrib");
             var countDownDate = moment(prayerTimes.maghrib);
             var nextP = "Magrib";
+          } else {
+            //console.log("next is fajr");
+            var countDownDate = moment(prayerTimes.fajr);
+            var nextP = "Fajr";
           }
         } else {
           var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
           var nextP = prayerName(prayerTimes.nextPrayer());
+        }
+        
+        if (nextP == "Fajr") {
+          countDownDate = countDownDate + (24 * 60 * 60 * 1000);
         }
 
 
@@ -226,18 +233,20 @@
         var x = setInterval(function() {
           var now = new Date().getTime();
           var distance = countDownDate - now;
+          //console.log("countDownDate = " + countDownDate);
+          //console.log("now = " + now);
 
           var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
           var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           var seconds = Math.floor((distance % (1000 * 60)) / 1000);
         
           document.getElementById("countDown").innerHTML = "Time until " + nextP + "<br />" + hours + "h "
-          + minutes + "m " + seconds + "s ";
+          + minutes + "m " + seconds + "s ";// + distance;
 
           if (distance < 0) {
             clearInterval(x);
-            $('body').css('background-color', 'red');
-            document.getElementById("countDown").innerHTML = "Done...";
+            //$('body').css('background-color', 'red');
+            //document.getElementById("countDown").innerHTML = "Done...";
           }
         }, 1000);
 
