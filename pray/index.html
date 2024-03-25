@@ -165,6 +165,7 @@ var pastMidnight = false;
 console.log(prayerTimes.nextPrayer());
 console.log(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
 console.log(Date());
+
 if (prayerTimes.nextPrayer() == "fajr") {
   console.log("next is fajir...");
   console.log("Are we before or after midnight...");
@@ -247,6 +248,7 @@ console.log();
         //$("#lastthird").html(moment(sunnahTimes.lastThirdOfTheNight).format('MMMM DD, h:mm A'));
         $("#qibla").html(Math.round(adhan.Qibla(coordinates) * 100) / 100 + "&deg;");
         $("#latLong").html(lat +  ", " + long);
+        //https://www.google.com/maps/@43.5014251,-85.2939009,10z
 
 
 
@@ -256,8 +258,8 @@ console.log();
         if (higriMonth == "Ramadan") {
           console.log(higriMonth);
           console.log(prayerTimes.nextPrayer());
-          if (prayerTimes.nextPrayer() == 'sunrise' || prayerTimes.nextPrayer() == 'dhuhr' || prayerTimes.nextPrayer() == 'asr' || prayerTimes.nextPrayer() == 'magrib') {
-            console.log("next is magrib");
+          if (prayerTimes.nextPrayer() == 'sunrise' || prayerTimes.nextPrayer() == 'dhuhr' || prayerTimes.nextPrayer() == 'asr' || prayerTimes.nextPrayer() == 'maghrib') {
+            console.log("next is maghrib");
             var countDownDate = moment(prayerTimes.maghrib);
             var nextP = "Iftar";
           } else {
