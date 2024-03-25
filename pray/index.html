@@ -49,8 +49,8 @@
 
     <style>
       body {
-        background-color: black;
-        color: white;
+        background-color: gray;
+        color: black;
         font-family: sans-serif;
         text-align: center;
       }
@@ -62,7 +62,7 @@
       .div-table {
         text-align: left;
         border-spacing: 10px 0;
-        color: gray;
+        color: black;
         display: table;
       }
 
@@ -71,7 +71,7 @@
       }
 
       .div-table-cell {
-        font-size: calc(.1em + 1vw);
+        font-size: calc(.1em + 2.5vw);
         display: table-cell;
       }
 
@@ -121,7 +121,10 @@
       function useLocation(lat, long) {
 
         const coordinates = new adhan.Coordinates(lat, long);
+        // ToDo: get date + 1 for next fajr
         const date = new Date();
+        const nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + 1);
 
         var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -149,11 +152,50 @@
 
 
         var prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
+        var nextPrayerTimes = new adhan.PrayerTimes(coordinates, nextDate, params);
 
-        var sunnahTimes = new adhan.SunnahTimes(prayerTimes);
+        //var sunnahTimes = new adhan.SunnahTimes(prayerTimes);
 
 
-        var star = ["", "", "", "", ""]
+var xCountDownDate = moment(nextPrayerTimes.fajr);
+var xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
+
+var pastMidnight = false;
+
+console.log(prayerTimes.nextPrayer());
+console.log(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+console.log(Date());
+if (prayerTimes.nextPrayer() == "fajr") {
+  console.log("next is fajir...");
+  console.log("Are we before or after midnight...");
+  console.log(moment(date).format('MMMM DD, YYYY'));
+  console.log(moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer())).format('MMMM DD, YYYY'));
+  if (moment(date).format('MMMM DD, YYYY') == moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer())).format('MMMM DD, YYYY')) {
+    console.log("We are past midnight");
+    pastMidnight = true;
+    //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, date, params);
+    xCountDownDate = moment(prayerTimes.fajr);
+    xxCountDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+  } else {
+    console.log("We are before midnight");
+    pastMidnight = false;
+    //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, nextDate, params);
+    xCountDownDate = moment(nextPrayerTimes.fajr);
+    xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
+  }
+}
+
+
+
+
+
+console.log(moment(nextDate).format('MMMM DD, YYYY'));
+console.log();
+console.log();
+
+
+
+        var star = ["", "", "", "", "", ""]
         var aStar = "> ";
         //var cp = prayerName(prayerTimes.currentPrayer());
         var np = prayerName(prayerTimes.nextPrayer());
@@ -161,7 +203,11 @@
         //console.log(np);
         switch (np) {
           case "Fajr":
-            star[0] = aStar;
+            if (pastMidnight) {
+              star[0] = aStar;
+            } else {
+              star[5] = aStar;
+            }
             break;
           case "Sunrise":
           case "Dhuhr":
@@ -182,12 +228,13 @@
 
 
 
+
         //console.log(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()));
         var higriMonth = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {month: 'long',}).format(Date.now());
 
         
 
-        $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
+        $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + "<br />" + moment(date).format('MMMM DD, YYYY'));
         //$("#fajr").html(star[0] + moment(prayerTimes.fajr).tz('America/New_York').format('h:mm A'));
         $("#fajr").html(star[0] + moment(prayerTimes.fajr).format('h:mm A'));
         $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
@@ -195,6 +242,7 @@
         $("#asr").html(star[2] + moment(prayerTimes.asr).format('h:mm A'));
         $("#maghrib").html(star[3] + moment(prayerTimes.maghrib).format('h:mm A'));
         $("#isha").html(star[4] + moment(prayerTimes.isha).format('h:mm A'));
+        $("#nextfajr").html(star[5] + moment(nextPrayerTimes.fajr).format('h:mm A'));
         //$("#midnight").html(moment(sunnahTimes.middleOfTheNight).format('MMMM DD, h:mm A'));
         //$("#lastthird").html(moment(sunnahTimes.lastThirdOfTheNight).format('MMMM DD, h:mm A'));
         $("#qibla").html(Math.round(adhan.Qibla(coordinates) * 100) / 100 + "&deg;");
@@ -205,18 +253,17 @@
 
 
 
-
         if (higriMonth == "Ramadan") {
-          //console.log(higriMonth);
-          //console.log(prayerTimes.currentPrayer());
-          if (prayerTimes.nextPrayer() == 'magrib') {
-            //console.log("next is magrib");
+          console.log(higriMonth);
+          console.log(prayerTimes.nextPrayer());
+          if (prayerTimes.nextPrayer() == 'sunrise' || prayerTimes.nextPrayer() == 'dhuhr' || prayerTimes.nextPrayer() == 'asr' || prayerTimes.nextPrayer() == 'magrib') {
+            console.log("next is magrib");
             var countDownDate = moment(prayerTimes.maghrib);
-            var nextP = "Magrib";
+            var nextP = "Iftar";
           } else {
-            //console.log("next is fajr");
-            var countDownDate = moment(prayerTimes.fajr);
-            var nextP = "Fajr";
+            console.log("next is fajr");
+            var countDownDate = xCountDownDate; //moment(nextPrayerTimes.fajr);
+            var nextP = "Sahour ends";
           }
         } else {
           var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
@@ -224,7 +271,7 @@
         }
         
         if (nextP == "Fajr") {
-          countDownDate = countDownDate + (24 * 60 * 60 * 1000);
+          var countDownDate = xxCountDownDate; //moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));//countDownDate + (24 * 60 * 60 * 1000);
         }
 
 
@@ -245,8 +292,8 @@
 
           if (distance < 0) {
             clearInterval(x);
-            //$('body').css('background-color', 'red');
-            //document.getElementById("countDown").innerHTML = "Done...";
+            $('body').css('background-color', 'red');
+            document.getElementById("countDown").innerHTML = "Done...";
           }
         }, 1000);
 
@@ -317,6 +364,10 @@
       <div class="div-table-row">
         <div class="div-table-cell">Isha</div>
         <div class="div-table-cell" id=isha>isha time</div>
+      </div>
+      <div class="div-table-row">
+        <div class="div-table-cell">Next Fajr</div>
+        <div class="div-table-cell" id=nextfajr>next fajr time</div>
       </div>
 
       <div class="div-table-row">
