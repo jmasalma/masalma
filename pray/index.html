@@ -96,6 +96,33 @@
 
 
 
+      var getUrlParameter = function getUrlParameter(sParam) {
+          var sPageURL = window.location.search.substring(1),
+              sURLVariables = sPageURL.split('&'),
+              sParameterName,
+              i;
+      
+          for (i = 0; i < sURLVariables.length; i++) {
+              sParameterName = sURLVariables[i].split('=');
+      
+              if (sParameterName[0] === sParam) {
+                  return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+              }
+          }
+          return false;
+      };
+      
+      
+
+      var latitude = getUrlParameter('latitude');
+      var longitude = getUrlParameter('longitude');
+      
+      
+      
+      console.log("URL latitude = " + latitude);
+      console.log("URL longitude = " + longitude);
+
+
       function prayerName(prayer) {
         if (prayer == adhan.Prayer.Fajr) {
           return "Fajr";
@@ -122,34 +149,93 @@
 
         const coordinates = new adhan.Coordinates(lat, long);
         // ToDo: get date + 1 for next fajr
-        const date = new Date();
-        const nextDate = new Date();
+
+
+        var CalculationMethod = getUrlParameter('CalculationMethod');
+        console.log("URL CalculationMethod = " + CalculationMethod);
+
+        var fasting = getUrlParameter('fasting');
+        console.log("URL fasting = " + fasting);
+
+        var madhab = getUrlParameter('madhab');
+        console.log("URL madhab = " + madhab);
+
+        var useDate = getUrlParameter('useDate');
+        console.log("URL useDate = " + useDate);
+
+
+        if (useDate) {
+          var date = new Date(useDate);
+          var nextDate = new Date(useDate);
+        } else {
+          var date = new Date();
+          var nextDate = new Date();
+        }
         nextDate.setDate(nextDate.getDate() + 1);
+
+
+
 
         var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-        if (tz.includes("America")) {
-          var params = adhan.CalculationMethod.NorthAmerica();
-        } else if (tz.includes("Dubai")) {
-          var params = adhan.CalculationMethod.Dubai();
-        } else if (tz.includes("Africa")) {
-          var params = adhan.CalculationMethod.Egyptian();
-        } else if (tz.includes("Karachi")) {
-          var params = adhan.CalculationMethod.Karachi();
-        } else if (tz.includes("Riyadh")) {
-          var params = adhan.CalculationMethod.UmmAlQura();
-        } else if (tz.includes("Qatar")) {
-          var params = adhan.CalculationMethod.Qatar();
-        } else if (tz.includes("Singapore")) {
-          var params = adhan.CalculationMethod.Singapore();
-        } else if (tz.includes("Tehran")) {
-          var params = adhan.CalculationMethod.Tehran();
-        } else if (tz.includes("Istanbul")) {
-          var params = adhan.CalculationMethod.Turkey();
+        if (CalculationMethod) {
+          if (CalculationMethod.includes("NorthAmerica")) {
+            var params = adhan.CalculationMethod.NorthAmerica();
+          } else if (CalculationMethod.includes("Dubai")) {
+            var params = adhan.CalculationMethod.Dubai();
+          } else if (CalculationMethod.includes("Egyptian")) {
+            var params = adhan.CalculationMethod.Egyptian();
+          } else if (CalculationMethod.includes("Karachi")) {
+            var params = adhan.CalculationMethod.Karachi();
+          } else if (CalculationMethod.includes("UmmAlQura")) {
+            var params = adhan.CalculationMethod.UmmAlQura();
+          } else if (CalculationMethod.includes("Qatar")) {
+            var params = adhan.CalculationMethod.Qatar();
+          } else if (CalculationMethod.includes("Singapore")) {
+            var params = adhan.CalculationMethod.Singapore();
+          } else if (CalculationMethod.includes("Tehran")) {
+            var params = adhan.CalculationMethod.Tehran();
+          } else if (CalculationMethod.includes("Turkey")) {
+            var params = adhan.CalculationMethod.Turkey();
+          } else if (CalculationMethod.includes("MoonsightingCommittee")) {
+            var params = adhan.CalculationMethod.MoonsightingCommittee();
+          } else if (CalculationMethod.includes("MuslimWorldLeague")) {
+            var params = adhan.CalculationMethod.MuslimWorldLeague();
+          } else if (CalculationMethod.includes("Kuwait")) {
+            var params = adhan.CalculationMethod.Kuwait();
+          } else {
+            var params = adhan.CalculationMethod.Other(); // Or MoonsightingCommittee or MuslimWorldLeague or Kuwait?
+          }
         } else {
-          var params = adhan.CalculationMethod.Other(); // Or MoonsightingCommittee or MuslimWorldLeague or Kuwait?
+          if (tz.includes("America")) {
+            var params = adhan.CalculationMethod.NorthAmerica();
+          } else if (tz.includes("Dubai")) {
+            var params = adhan.CalculationMethod.Dubai();
+          } else if (tz.includes("Africa")) {
+            var params = adhan.CalculationMethod.Egyptian();
+          } else if (tz.includes("Karachi")) {
+            var params = adhan.CalculationMethod.Karachi();
+          } else if (tz.includes("Riyadh")) {
+            var params = adhan.CalculationMethod.UmmAlQura();
+          } else if (tz.includes("Qatar")) {
+            var params = adhan.CalculationMethod.Qatar();
+          } else if (tz.includes("Singapore")) {
+            var params = adhan.CalculationMethod.Singapore();
+          } else if (tz.includes("Tehran")) {
+            var params = adhan.CalculationMethod.Tehran();
+          } else if (tz.includes("Istanbul")) {
+            var params = adhan.CalculationMethod.Turkey();
+          } else {
+            var params = adhan.CalculationMethod.Other(); // Or MoonsightingCommittee or MuslimWorldLeague or Kuwait?
+          }
         }
 
+        if (madhab == "Hanafi") {
+          params.madhab = adhan.Madhab.Hanafi;
+        } else {
+          params.madhab = adhan.Madhab.Shafi;
+        }
+        
 
         var prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
         var nextPrayerTimes = new adhan.PrayerTimes(coordinates, nextDate, params);
@@ -157,42 +243,42 @@
         //var sunnahTimes = new adhan.SunnahTimes(prayerTimes);
 
 
-var xCountDownDate = moment(nextPrayerTimes.fajr);
-var xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
-
-var pastMidnight = false;
-
-console.log(prayerTimes.nextPrayer());
-console.log(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
-console.log(Date());
-
-if (prayerTimes.nextPrayer() == "fajr") {
-  console.log("next is fajir...");
-  console.log("Are we before or after midnight...");
-  console.log(moment(date).format('MMMM DD, YYYY'));
-  console.log(moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer())).format('MMMM DD, YYYY'));
-  if (moment(date).format('MMMM DD, YYYY') == moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer())).format('MMMM DD, YYYY')) {
-    console.log("We are past midnight");
-    pastMidnight = true;
-    //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, date, params);
-    xCountDownDate = moment(prayerTimes.fajr);
-    xxCountDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
-  } else {
-    console.log("We are before midnight");
-    pastMidnight = false;
-    //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, nextDate, params);
-    xCountDownDate = moment(nextPrayerTimes.fajr);
-    xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
-  }
-}
-
-
-
-
-
-console.log(moment(nextDate).format('MMMM DD, YYYY'));
-console.log();
-console.log();
+        var xCountDownDate = moment(nextPrayerTimes.fajr);
+        var xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
+        
+        var pastMidnight = false;
+        
+        console.log(prayerTimes.nextPrayer());
+        console.log(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+        console.log(Date());
+        
+        if (prayerTimes.nextPrayer() == "fajr") {
+          console.log("next is fajir...");
+          console.log("Are we before or after midnight...");
+          console.log(moment(date).format('MMMM DD, YYYY'));
+          console.log(moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer())).format('MMMM DD, YYYY'));
+          if (moment(date).format('MMMM DD, YYYY') == moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer())).format('MMMM DD, YYYY')) {
+            console.log("We are past midnight");
+            pastMidnight = true;
+            //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, date, params);
+            xCountDownDate = moment(prayerTimes.fajr);
+            xxCountDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+          } else {
+            console.log("We are before midnight");
+            pastMidnight = false;
+            //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, nextDate, params);
+            xCountDownDate = moment(nextPrayerTimes.fajr);
+            xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
+          }
+        }
+        
+        
+        
+        
+        
+        console.log(moment(nextDate).format('MMMM DD, YYYY'));
+        console.log();
+        console.log();
 
 
 
@@ -229,15 +315,19 @@ console.log();
 
 
 
-
         //console.log(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()));
         var higriMonth = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {month: 'long',}).format(Date.now());
 
+console.log("###DEBUG### - here...");
         
+console.log(lat +  ", " + long);
 
         $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + "<br />" + moment(date).format('MMMM DD, YYYY'));
         //$("#fajr").html(star[0] + moment(prayerTimes.fajr).tz('America/New_York').format('h:mm A'));
-        $("#fajr").html(star[0] + moment(prayerTimes.fajr).format('h:mm A'));
+
+        //$("#fajr").html(star[0] + moment(prayerTimes.fajr).format('h:mm A'));
+        document.getElementById("fajr").innerHTML = star[0] + moment(prayerTimes.fajr).format('h:mm A');
+        
         $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
         $("#dhuhr").html(star[1] + moment(prayerTimes.dhuhr).format('h:mm A'));
         $("#asr").html(star[2] + moment(prayerTimes.asr).format('h:mm A'));
@@ -250,12 +340,11 @@ console.log();
         $("#latLong").html(lat +  ", " + long);
         //https://www.google.com/maps/@43.5014251,-85.2939009,10z
 
+console.log("###DEBUG### - after here...");
 
 
 
-
-
-        if (higriMonth == "Ramadan") {
+        if (fasting == 1 || (!fasting && higriMonth == "Ramadan")) {
           console.log(higriMonth);
           console.log(prayerTimes.nextPrayer());
           if (prayerTimes.nextPrayer() == 'sunrise' || prayerTimes.nextPrayer() == 'dhuhr' || prayerTimes.nextPrayer() == 'asr' || prayerTimes.nextPrayer() == 'maghrib') {
@@ -280,7 +369,11 @@ console.log();
 
 
         var x = setInterval(function() {
-          var now = new Date().getTime();
+          if (useDate) {
+            var now = new Date(useDate).getTime();
+          } else {
+            var now = new Date().getTime();
+          }
           var distance = countDownDate - now;
           //console.log("countDownDate = " + countDownDate);
           //console.log("now = " + now);
@@ -314,6 +407,7 @@ console.log();
             },
             (error) => {
               console.error("Error getting location:", error.message);
+              console.log("useLocation(" + dLatitude +", " + dLongitude + ");");
               useLocation(dLatitude, dLongitude);
             }
           );
@@ -323,7 +417,16 @@ console.log();
         }
       }
       
-      getLocation();
+
+
+
+
+      if (latitude && longitude) {
+        console.log("useLocation(" + latitude +", " + longitude + ");");
+        useLocation(latitude, longitude);
+      } else {
+        getLocation();
+      }
 
 
 
@@ -336,7 +439,7 @@ console.log();
     <div class="div-table">
       <div class="div-table-row">
         <div class="div-table-cell">Prayer times for</div>
-        <div class="div-table-cell" id=PTDate>date</div>
+        <div class="div-table-cell" id="PTDate">date</div>
       </div>
 
       <div class="div-table-row">
@@ -345,31 +448,31 @@ console.log();
 
       <div class="div-table-row">
         <div class="div-table-cell">Fajr</div>
-        <div class="div-table-cell" id=fajr>fajr time</div>
+        <div class="div-table-cell" id="fajr">fajr time</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">Sunrise</div>
-        <div class="div-table-cell" id=sunrise>sunrise time</div>
+        <div class="div-table-cell" id="sunrise">sunrise time</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">Dhuhr</div>
-        <div class="div-table-cell" id=dhuhr>dhuhr time</div>
+        <div class="div-table-cell" id="dhuhr">dhuhr time</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">Asr</div>
-        <div class="div-table-cell" id=asr>asr time</div>
+        <div class="div-table-cell" id="asr">asr time</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">Maghrib</div>
-        <div class="div-table-cell" id=maghrib>maghrib time</div>
+        <div class="div-table-cell" id="maghrib">maghrib time</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">Isha</div>
-        <div class="div-table-cell" id=isha>isha time</div>
+        <div class="div-table-cell" id="isha">isha time</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">Next Fajr</div>
-        <div class="div-table-cell" id=nextfajr>next fajr time</div>
+        <div class="div-table-cell" id="nextfajr">next fajr time</div>
       </div>
 
       <div class="div-table-row">
@@ -378,25 +481,29 @@ console.log();
 <!--
       <div class="div-table-row">
         <div class="div-table-cell">middle of the night</div>
-        <div class="div-table-cell" id=midnight>midnight time</div>
+        <div class="div-table-cell" id="midnight">midnight time</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">last third of the night</div>
-        <div class="div-table-cell" id=lastthird>last third of the night time</div>
+        <div class="div-table-cell" id="lastthird">last third of the night time</div>
       </div>
 -->
       <div class="div-table-row">
         <div class="div-table-cell">Qibla Direction</div>
-        <div class="div-table-cell" id=qibla>qibla direction</div>
+        <div class="div-table-cell" id="qibla">qibla direction</div>
       </div>
       <div class="div-table-row">
         <div class="div-table-cell">Lat/Long</div>
-        <div class="div-table-cell" id=latLong>lat/long</div>
+        <div class="div-table-cell" id="latLong">lat/long</div>
       </div>
       
 
       <div class="div-table-row">
         <div class="div-table-cell"><br /></div>
+      </div>
+
+      <div class="div-table-row">
+        <div class="div-table-cell"><a href="options.html">Options</a></div>
       </div>
 
       <div class="div-table-row">
