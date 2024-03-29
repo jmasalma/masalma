@@ -1,36 +1,14 @@
 body {
   padding-top: 5rem;
   padding-bottom: 3rem;
-  background-image: url('bg.jpg');
-  background-color: rgba(255,255,255,0.97);
+  /*background-image: url('bg.jpg');*/
+  /*background-color: rgba(255,255,255,0.97);*/
   background-blend-mode: lighten;
   background-repeat: repeat;
+  background-color: gray;
+  /*color: black;*/
 }
 
-
-#result{
-    display: block;
-}
-#result:empty{
-    display: none;
-}
-
-
-#result_w{
-    display: block;
-}
-#result_w:empty{
-    display: none;
-}
-
-
-
-#result_2{
-    display: block;
-}
-#result_2:empty{
-    display: none;
-}
 
 
 .tooltip-inner {
@@ -43,6 +21,6 @@ body {
   display: none;
 }
 .footer-text:after {
-  content: '© Masalma.com                v.20230719.01';
+  content: '© Masalma.com                v.20240329.01';
 }
 
