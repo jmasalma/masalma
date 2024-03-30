@@ -52,12 +52,27 @@
 
 
 
-  <body>
+  <body onload="mytime()">
     <script type="text/javascript">
 
       var dLatitude = 43.4590806;
       var dLongitude = -80.5355996;
       //var dLongitude = -0.3;
+
+function mytime() {
+var d=new Date();
+ap="am";
+h=d.getHours();
+m=d.getMinutes();
+s=d.getSeconds();
+if (h>11) { ap = "pm"; }
+if (h>12) { h = h-12; }
+if (h==0) { h = 12; }
+if (m<10) { m = "0" + m; }
+if (s<10) { s = "0" + s; }
+document.getElementById('timehere').innerHTML=h + ":" + m + ":" + s + " " + ap;
+t=setTimeout('mytime()',500);
+}
 
 
 
@@ -363,7 +378,7 @@ console.log("###DEBUG### - after here...");
           var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           var seconds = Math.floor((distance % (1000 * 60)) / 1000);
         
-          document.getElementById("countDown").innerHTML = "Time until " + nextP + "<br />" + hours + "h "
+          document.getElementById("countDown").innerHTML = nextP + " in<br />" + hours + "h "
           + minutes + "m " + seconds + "s ";// + distance;
 
           if (distance < 0) {
@@ -432,8 +447,20 @@ console.log("###DEBUG### - after here...");
 
 
       <div class="container">
+        <div class="row">
+          <div class="col" style="position:fixed;top:0;left:0;">
+            <p style="display:inline; background-color: lightgray;" id="timehere"></p>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="container">
+
+
 
         <div class="container" style="font-size: 5vw;">
+
 
           <div class="row">
             <div class="col text-end">
