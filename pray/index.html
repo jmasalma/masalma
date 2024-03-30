@@ -57,6 +57,7 @@
 
       var dLatitude = 43.4590806;
       var dLongitude = -80.5355996;
+      //var dLongitude = -0.3;
 
 
 
@@ -367,8 +368,13 @@ console.log("###DEBUG### - after here...");
 
           if (distance < 0) {
             clearInterval(x);
-            $('body').css('background-color', 'red');
+            $('body').css('background-color', 'lightgreen');
             document.getElementById("countDown").innerHTML = "Done...";
+            //window.location.reload();
+            setTimeout(location.reload.bind(location), 60000);
+
+
+
             //beep();
           }
         }, 1000);
