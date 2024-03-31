@@ -1,13 +1,65 @@
-<!DOCTYPE html>
-<html>
-   <body>
-         <h2>Stopwatch</h2>
-         <div id="stopwatch">00<sub>h</sub> 00<sub>m</sub> 00<sub>s</sub> 00</div>
 
-         <button id="startStopButton" onclick="startStopStopwatch()">Start</button>
-         <button onclick="resetStopwatch()">Reset</button>
 
-   <script>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="Masalma Masalma.com" />
+    <meta name="description" content="Masalma Masalma.com" />
+    <meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+    <meta name="robots" content="index,follow" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Home, Masalma.com" />
+    <meta property="og:description" content="Masalma Masalma.com" />
+    <meta property="og:url" content="https://masalma.com/" />
+    <meta property="og:site_name" content="Masalma.com" />
+    <link rel="canonical" href="https://masalma.com/" />
+
+    <title>Masalma - Stopwatch</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W1R7TB87PT"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-W1R7TB87PT');
+    </script>
+    
+    <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">-->
+    <link rel="stylesheet" type="text/css" href="../bootstrap.min.css">
+
+    <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>-->
+    <script type="text/javascript" src="../bootstrap.bundle.min.js"></script>
+
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>-->
+    <script type="text/javascript" src="../jquery.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../custom.css">
+
+    <script>
+    $(function(){
+      $("#header").load("../header.html");
+      //$("#footer").load("footer.html");
+    });
+    </script>
+
+
+
+  </head>
+
+
+
+  <body>
+    <script type="text/javascript">
+
       var startTime;
       var stopwatchInterval;
       var elapsedPausedTime = 0;
@@ -16,10 +68,14 @@
       function startStopStopwatch() {
         if (!stopwatchInterval) {
           document.getElementById("startStopButton").innerHTML = "Stop";
+          document.getElementById("startStopButton").classList.toggle('btn-primary');
+          document.getElementById("startStopButton").classList.toggle('btn-danger');
           startTime = new Date().getTime() - elapsedPausedTime;
           stopwatchInterval = setInterval(updateStopwatch, 10);
         } else {
           document.getElementById("startStopButton").innerHTML = "Start";
+          document.getElementById("startStopButton").classList.toggle('btn-primary');
+          document.getElementById("startStopButton").classList.toggle('btn-danger');
           clearInterval(stopwatchInterval);
           elapsedPausedTime = new Date().getTime() - startTime;
           stopwatchInterval = null;
@@ -29,6 +85,10 @@
 
       function resetStopwatch() {
         document.getElementById("startStopButton").innerHTML = "Start";
+        if ( document.getElementById("startStopButton").classList.contains('btn-danger') ) {
+          document.getElementById("startStopButton").classList.toggle('btn-primary');
+          document.getElementById("startStopButton").classList.toggle('btn-danger');
+        }
         clearInterval(stopwatchInterval);
         stopwatchInterval = null;
         elapsedPausedTime = 0;
@@ -51,5 +111,57 @@
       }
         
    </script>
-   </body>
+
+
+    <div id="header"></div>
+
+
+    <main role="main">
+
+
+      <div class="container">
+      
+      
+        <div class="page-header">
+          <h1 class="text-center">Stopwatch</h1>
+        </div>
+      
+      
+      
+        <div class="panel panel-default">
+          <div class="panel-body text-center">
+            <div class="timer-time timer-container">
+              <div class="timer-time-set timer-box display-1">
+                <span id="stopwatch">00<sub>h</sub> 00<sub>m</sub> 00<sub>s</sub> 00</span>
+              </div>
+            </div>
+            <div>
+              <button id="restartButton" class="btn btn-warning btn-lg" type="submit" onclick="resetStopwatch()">
+                <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> Reset
+              </button>
+              <button id="startStopButton" class="btn btn-primary btn-lg" type="submit" onclick="startStopStopwatch()()">
+                <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start
+              </button>
+            </div>
+          </div>
+      
+        </div>
+      
+      </div>
+
+
+
+
+
+
+
+    </main>
+  
+    <div class="navbar fixed-bottom ms-3 me-3 footer-text"><small><span>© JM</span></small></div>
+  
+  </body>
 </html>
+
+
+
+
