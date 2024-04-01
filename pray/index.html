@@ -59,20 +59,20 @@
       var dLongitude = -80.5355996;
       //var dLongitude = -0.3;
 
-function mytime() {
-var d=new Date();
-ap="am";
-h=d.getHours();
-m=d.getMinutes();
-s=d.getSeconds();
-if (h>11) { ap = "pm"; }
-if (h>12) { h = h-12; }
-if (h==0) { h = 12; }
-if (m<10) { m = "0" + m; }
-if (s<10) { s = "0" + s; }
-document.getElementById('timehere').innerHTML=h + ":" + m + ":" + s + " " + ap;
-t=setTimeout('mytime()',500);
-}
+      function mytime() {
+        var d=new Date();
+        ap="am";
+        h=d.getHours();
+        m=d.getMinutes();
+        s=d.getSeconds();
+        if (h>11) { ap = "pm"; }
+        if (h>12) { h = h-12; }
+        if (h==0) { h = 12; }
+        if (m<10) { m = "0" + m; }
+        if (s<10) { s = "0" + s; }
+        $('#timehere').html(h + ":" + m + ":" + s + " " + ap);
+        t=setTimeout('mytime()',500);
+      }
 
 
 
@@ -102,24 +102,6 @@ t=setTimeout('mytime()',500);
       console.log("URL latitude = " + latitude);
       console.log("URL longitude = " + longitude);
 
-/*
-      function beep(freq = 660, duration = 90, vol = 50) {
-        var context = new(window.AudioContext || window.webkitAudioContext);
-        const oscillator = context.createOscillator();
-        const gain = context.createGain();
-        gain.gain.setValueAtTime(0, context.currentTime);
-        gain.gain.linearRampToValueAtTime(1, context.currentTime + 0.002);
-        oscillator.connect(gain);
-        oscillator.frequency.value = freq;
-        oscillator.type = "square";
-        gain.connect(context.destination);
-        oscillator.start(context.currentTime);
-        oscillator.stop(context.currentTime + duration * .001);
-        oscillator.onended = () => context.close();
-      }
-
-*/
-
 
       function prayerName(prayer) {
         if (prayer == adhan.Prayer.Fajr) {
@@ -140,14 +122,9 @@ t=setTimeout('mytime()',500);
       }
 
 
-
-
-
       function useLocation(lat, long) {
 
         const coordinates = new adhan.Coordinates(lat, long);
-        // ToDo: get date + 1 for next fajr
-
 
         var CalculationMethod = getUrlParameter('CalculationMethod');
         console.log("URL CalculationMethod = " + CalculationMethod);
@@ -170,7 +147,6 @@ t=setTimeout('mytime()',500);
           var nextDate = new Date();
         }
         nextDate.setDate(nextDate.getDate() + 1);
-
 
 
 
@@ -238,9 +214,6 @@ t=setTimeout('mytime()',500);
         var prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
         var nextPrayerTimes = new adhan.PrayerTimes(coordinates, nextDate, params);
 
-        //var sunnahTimes = new adhan.SunnahTimes(prayerTimes);
-
-
         var xCountDownDate = moment(nextPrayerTimes.fajr);
         var xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
         
@@ -258,87 +231,72 @@ t=setTimeout('mytime()',500);
           if (moment(date).format('MMMM DD, YYYY') == moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer())).format('MMMM DD, YYYY')) {
             console.log("We are past midnight");
             pastMidnight = true;
-            //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, date, params);
             xCountDownDate = moment(prayerTimes.fajr);
             xxCountDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
           } else {
             console.log("We are before midnight");
             pastMidnight = false;
-            //var nextPrayerTimes = new adhan.PrayerTimes(coordinates, nextDate, params);
             xCountDownDate = moment(nextPrayerTimes.fajr);
             xxCountDownDate = moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));
           }
         }
         
-        
-        
-        
-        
-        console.log(moment(nextDate).format('MMMM DD, YYYY'));
-        console.log();
-        console.log();
 
 
+        var higriMonth = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {month: 'long',}).format(Date.now());
 
-        var star = ["", "", "", "", "", ""]
-        var aStar = "> ";
-        //var cp = prayerName(prayerTimes.currentPrayer());
+
+        $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
+
         var np = prayerName(prayerTimes.nextPrayer());
 
-        //console.log(np);
+        $("#fajr").html(moment(prayerTimes.fajr).format('h:mm A'));
+        $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
+        $("#dhuhr").html(moment(prayerTimes.dhuhr).format('h:mm A'));
+        $("#asr").html(moment(prayerTimes.asr).format('h:mm A'));
+        $("#maghrib").html(moment(prayerTimes.maghrib).format('h:mm A'));
+        $("#isha").html(moment(prayerTimes.isha).format('h:mm A'));
+        $("#nextfajr").html(moment(nextPrayerTimes.fajr).format('h:mm A'));
+
+
+        aStar = "> "
         switch (np) {
           case "Fajr":
             if (pastMidnight) {
-              star[0] = aStar;
+              $("#fajrRow").addClass('table-active');
+              $("#fajr").prepend(aStar);
             } else {
-              star[5] = aStar;
+              $("#nextfajrRow").addClass('table-active');
+              $("#nextfajr").prepend(aStar);
             }
             break;
           case "Sunrise":
+            $("#sunriseRow").addClass('table-active');
+            $("#sunrise").prepend(aStar);
           case "Dhuhr":
-            star[1] = aStar;
+            $("#dhuhrRow").addClass('table-active');
+            $('#dhuhr').prepend(aStar);
             break;
           case "Asr":
-            star[2] = aStar;
+            $("#asrRow").addClass('table-active');
+            $("#asr").prepend(aStar);
             break;
           case "Maghrib":
-            star[3] = aStar;
+            $("#maghribRow").addClass('table-active');
+            $("#maghrib").prepend(aStar);
             break;
           case "Isha":
-            star[4] = aStar;
+            $("#ishaRow").addClass('table-active');
+            $("#isha").prepend(aStar);
             break;
         }
-        
 
 
 
 
-        //console.log(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()));
-        var higriMonth = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {month: 'long',}).format(Date.now());
-
-console.log("###DEBUG### - here...");
-        
-console.log(lat +  ", " + long);
-
-        $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
-        //$("#fajr").html(star[0] + moment(prayerTimes.fajr).tz('America/New_York').format('h:mm A'));
-
-        //$("#fajr").html(star[0] + moment(prayerTimes.fajr).format('h:mm A'));
-        document.getElementById("fajr").innerHTML = star[0] + moment(prayerTimes.fajr).format('h:mm A');
-        
-        $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
-        $("#dhuhr").html(star[1] + moment(prayerTimes.dhuhr).format('h:mm A'));
-        $("#asr").html(star[2] + moment(prayerTimes.asr).format('h:mm A'));
-        $("#maghrib").html(star[3] + moment(prayerTimes.maghrib).format('h:mm A'));
-        $("#isha").html(star[4] + moment(prayerTimes.isha).format('h:mm A'));
-        $("#nextfajr").html(star[5] + moment(nextPrayerTimes.fajr).format('h:mm A'));
-        //$("#midnight").html(moment(sunnahTimes.middleOfTheNight).format('MMMM DD, h:mm A'));
-        //$("#lastthird").html(moment(sunnahTimes.lastThirdOfTheNight).format('MMMM DD, h:mm A'));
         $("#qibla").html(Math.round(adhan.Qibla(coordinates) * 100) / 100 + "&deg;");
         $("#latLong").html(lat +  ", " + long);
         //https://www.google.com/maps/@43.5014251,-85.2939009,10z
-
-console.log("###DEBUG### - after here...");
 
 
 
@@ -351,7 +309,7 @@ console.log("###DEBUG### - after here...");
             var nextP = "Iftar";
           } else {
             console.log("next is fajr");
-            var countDownDate = xCountDownDate; //moment(nextPrayerTimes.fajr);
+            var countDownDate = xCountDownDate;
             var nextP = "Sahour ends";
           }
         } else {
@@ -360,7 +318,7 @@ console.log("###DEBUG### - after here...");
         }
         
         if (nextP == "Fajr") {
-          var countDownDate = xxCountDownDate; //moment(nextPrayerTimes.timeForPrayer(nextPrayerTimes.nextPrayer()));//countDownDate + (24 * 60 * 60 * 1000);
+          var countDownDate = xxCountDownDate;
         }
 
 
@@ -371,26 +329,20 @@ console.log("###DEBUG### - after here...");
             var now = new Date().getTime();
           }
           var distance = countDownDate - now;
-          //console.log("countDownDate = " + countDownDate);
-          //console.log("now = " + now);
 
           var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
           var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           var seconds = Math.floor((distance % (1000 * 60)) / 1000);
         
-          document.getElementById("countDown").innerHTML = nextP + " in<br />" + hours + "h "
-          + minutes + "m " + seconds + "s ";// + distance;
+          $("#countDown").html(nextP + " in<br />" + hours + "h " + minutes + "m " + seconds + "s ");
 
           if (distance < 0) {
             clearInterval(x);
             $('body').css('background-color', 'lightgreen');
-            document.getElementById("countDown").innerHTML = "Done...";
+            $("#countDown").html("Done...");
             //window.location.reload();
             setTimeout(location.reload.bind(location), 60000);
 
-
-
-            //beep();
           }
         }, 1000);
 
@@ -455,115 +407,78 @@ console.log("###DEBUG### - after here...");
       </div>
 
 
-      <div class="container">
 
 
 
-        <div class="container" style="font-size: 5vw;">
+
+         <table class="table" style="font-size: 5vw;">
+             <thead>
+                 <tr>
+                     <th scope="col">Prayer</th>
+                     <th scope="col">Time</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 <tr id="fajrRow">
+                     <td>Fajr</td>
+                     <td id="fajr">fajr time</td>
+                 </tr>
+                 <tr id="sunriseRow">
+                   <td>Sunrise</td>
+                     <td id="sunrise">sunrise time</td>
+                 </tr>
+                 <tr id="dhuhrRow"><!-- class="table-active" -->
+                     <td>Dhuhr</td>
+                     <td id="dhuhr">dhuhr time</td>
+                 </tr>
+                 <tr id="asrRow">
+                     <td>Asr</td>
+                     <td id="asr">asr time</td>
+                 </tr>
+                 <tr id="maghribRow">
+                     <td>Maghrib</td>
+                     <td id="maghrib">maghrib time</td>
+                 </tr>
+                 <tr id="ishaRow">
+                     <td>Isha</td>
+                     <td id="isha">isha time</td>
+                 </tr>
+                 <tr id="nextfajrRow">
+                     <td>Next Fajr</td>
+                     <td id="nextfajr">nextfajr time</td>
+                 </tr>
+
+             </tbody>
+         </table>
+
+         <br />
+
+         <div class="container">
+
+             <div class="row">
+                 <div class="col-sm">Qibla Direction</div>
+                 <div class="col-sm" id="qibla">qibla direction</div>
+             </div>
+             <div class="row">
+                 <div class="col-sm">Lat/Long</div>
+                 <div class="col-sm" id="latLong">lat/long</div>
+             </div>
+
+         </div>
+         <div class="container" style="font-size: 1.5vw;">
+             <div class="row">
+                 <div class="col">
+                     <a href="options.html">Options</a>
+               </div>
+             </div>
+             <div class="row">
+                 <div class="col">
+                     Please check you local masjid for official times
+                 </div>
+             </div>
+         </div>
 
 
-          <div class="row">
-            <div class="col text-end">
-              Fajr
-            </div>
-            <div class="col" id="fajr">
-              fajr time
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col text-end">
-              Sunrise
-            </div>
-            <div class="col" id="sunrise">
-              sunrise time
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col text-end">
-              Dhuhr
-            </div>
-            <div class="col" id="dhuhr">
-              dhuhr time
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col text-end">
-              Asr
-            </div>
-            <div class="col" id="asr">
-              asr time
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col text-end">
-              Maghrib
-            </div>
-            <div class="col" id="maghrib">
-              maghrib time
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col text-end">
-              Isha
-            </div>
-            <div class="col" id="isha">
-              isha time
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col text-end">
-              Next Fajr
-            </div>
-            <div class="col" id="nextfajr">
-              nextfajr time
-            </div>
-          </div>
-
-
-          <div class="row">
-            <div class="col">
-              <br />
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col text-end">
-              Qibla Direction
-            </div>
-            <div class="col" id="qibla">
-              qibla Direction
-            </div>
-          </div>
-
-        </div>
-
-        <div class="row" style="font-size: 2vw;">
-          <div class="col">
-            Lat/Long <p style="display:inline" id="latLong">lat/long</p>
-          </div>
-        </div>
-
-        <div class="container" style="font-size: 1.5vw;">
-          <div class="row">
-            <div class="col">
-              <a href="options.html">Options</a>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col">
-              Please check you local masjid for official times
-            </div>
-          </div>
-        </div>
-
-      </div>
     </main>
   
     <div class="navbar fixed-bottom ms-3 me-3 footer-text"><small><span>© JM</span></small></div>
