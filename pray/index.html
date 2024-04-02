@@ -248,7 +248,6 @@
 
         $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
 
-        var np = prayerName(prayerTimes.nextPrayer());
 
         $("#fajr").html(moment(prayerTimes.fajr).format('h:mm A'));
         $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
@@ -260,6 +259,7 @@
 
 
         aStar = "> "
+        var np = prayerName(prayerTimes.nextPrayer());
         switch (np) {
           case "Fajr":
             if (pastMidnight) {
@@ -273,6 +273,7 @@
           case "Sunrise":
             $("#sunriseRow").addClass('table-active');
             $("#sunrise").prepend(aStar);
+            break;
           case "Dhuhr":
             $("#dhuhrRow").addClass('table-active');
             $('#dhuhr').prepend(aStar);
