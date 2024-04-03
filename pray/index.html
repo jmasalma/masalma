@@ -260,6 +260,8 @@
 
         aStar = "> "
         var np = prayerName(prayerTimes.nextPrayer());
+        if (np == "None") { np = "nextfajr"; }
+        console.log("np = " + np);
         switch (np) {
           case "Fajr":
             if (pastMidnight) {
@@ -290,6 +292,10 @@
             $("#ishaRow").addClass('table-active');
             $("#isha").prepend(aStar);
             break;
+          case "nextfajr":
+            $("#nextfajrRow").addClass('table-active');
+            $("#nextfajr").prepend(aStar);
+            break;
         }
 
 
@@ -314,12 +320,14 @@
             var nextP = "Sahour ends";
           }
         } else {
+          console.log("else...");
           var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
           var nextP = prayerName(prayerTimes.nextPrayer());
         }
         
-        if (nextP == "Fajr") {
+        if (nextP == "None") {
           var countDownDate = xxCountDownDate;
+          var nextP = "Fajr";
         }
 
 
