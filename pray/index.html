@@ -124,6 +124,17 @@
 
       function useLocation(lat, long) {
 
+
+        $('#toggle_fullscreen').on('click', function(){
+          // if already full screen; exit
+          // else go fullscreen
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          } else {
+            $('#countDownDiv').get(0).requestFullscreen();
+          }
+        });
+
         const coordinates = new adhan.Coordinates(lat, long);
 
         var CalculationMethod = getUrlParameter('CalculationMethod');
@@ -388,16 +399,19 @@
 
 
 
-
-
-
     </script>
 
 
-    <main role="main">
+    <main id="countDownDiv" role="main">
+
+      <div style="position: fixed; top : 0; right: 0;">
+            <a href="#" id="toggle_fullscreen">
+              <img src="fs.png" alt="Enter fullscreen" />
+            </a>
+      </div>
 
 
-      <div class="container">
+      <div  class="container">
         <h1 class="fw-bolder text-center text-top display-1">
           <p id="countDown">Countdown<br />Timer</p>
         </h1>
@@ -421,7 +435,7 @@
 
       <div class="container">
 
-       <table class="table" style="font-size: 5vw;">
+       <table class="table" style="font-size: 3vw;">
            <tbody>
                <tr id="fajrRow">
                    <td>Fajr</td>
