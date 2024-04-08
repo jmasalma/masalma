@@ -313,8 +313,8 @@
 
 
         $("#qibla").html(Math.round(adhan.Qibla(coordinates) * 100) / 100 + "&deg;");
-        $("#latLong").html(lat +  ", " + long);
-        //https://www.google.com/maps/@43.5014251,-85.2939009,10z
+        $("#latLong").html('<a href="https://www.google.com/maps/@' + lat + ',' + long + ',20z" target="_blank">' + lat +  ', ' + long + '</a>');
+        //https://www.google.com/maps/@43.4591149,-80.5354321,13z
 
 
 
@@ -381,6 +381,11 @@
               console.error("Error getting location:", error.message);
               console.log("useLocation(" + dLatitude +", " + dLongitude + ");");
               useLocation(dLatitude, dLongitude);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 600000
             }
           );
         } else {
