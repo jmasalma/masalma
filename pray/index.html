@@ -59,6 +59,11 @@
       var dLongitude = -80.5355996;
       //var dLongitude = 5;
 
+
+      function pad(number) {
+        return (number < 10 ? "0" : "") + number;
+      }
+
       function mytime() {
         var d=new Date();
         ap="am";
@@ -357,12 +362,12 @@
           var countDownText = "";
           if (hours == 0 ) {
             if (minutes < 15) {
-              countDownText = "<b style='color:red;'>" + minutes + "m " + seconds + "s </b>";
+              countDownText = "<b style='color:red;'>" + pad(minutes) + "m " + pad(seconds) + "s </b>";
             } else {
-              countDownText = minutes + "m " + seconds + "s ";
+              countDownText = pad(minutes) + "m " + pad(seconds) + "s ";
             }
           } else {
-            countDownText = hours + "h " + minutes + "m " + seconds + "s ";
+            countDownText = hours + "h " + pad(minutes) + "m " + pad(seconds) + "s ";
           }
           $("#countDown").html(nextP + " in<br />" + countDownText);
 
