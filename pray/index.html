@@ -57,7 +57,7 @@
 
       var dLatitude = 43.4590806;
       var dLongitude = -80.5355996;
-      //var dLongitude = -0.3;
+      //var dLongitude = 5;
 
       function mytime() {
         var d=new Date();
@@ -354,7 +354,17 @@
           var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           var seconds = Math.floor((distance % (1000 * 60)) / 1000);
         
-          $("#countDown").html(nextP + " in<br />" + hours + "h " + minutes + "m " + seconds + "s ");
+          var countDownText = "";
+          if (hours == 0 ) {
+            if (minutes < 15) {
+              countDownText = "<b style='color:red;'>" + minutes + "m " + seconds + "s </b>";
+            } else {
+              countDownText = minutes + "m " + seconds + "s ";
+            }
+          } else {
+            countDownText = hours + "h " + minutes + "m " + seconds + "s ";
+          }
+          $("#countDown").html(nextP + " in<br />" + countDownText);
 
           if (distance < 0) {
             clearInterval(x);
