@@ -363,6 +363,10 @@
           if (hours == 0 ) {
             if (minutes < 15) {
               countDownText = "<b style='color:red;'>" + pad(minutes) + "m " + pad(seconds) + "s </b>";
+              document.body.style.backgroundColor = "LightPink"; //"#FF474C";
+              if (minutes < 5) {
+                document.body.style.backgroundColor = "LightCoral"; //"#FF474C";
+              }
             } else {
               countDownText = pad(minutes) + "m " + pad(seconds) + "s ";
             }
