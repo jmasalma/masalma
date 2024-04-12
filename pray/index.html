@@ -3,10 +3,6 @@
 
 TODO: Fix font sizes to change dynamically based on horizontal page size
 
-TODO: Snow next day prayers, current prayer to next 6 records (not just next fajr)
-
-TODO: Add option to disable countdown and just show prayer times (Need to deal with refresh of page issue)
-
 TODO:
 
 TODO:
@@ -15,11 +11,6 @@ TODO:
 
 TODO:
 
-Done - TODO: Color gradiant based on countdown to zero..
-
-Done - TODO: integrate option in same page...
-
-Done - TODO: Make time larger font
 
 
 
@@ -81,14 +72,14 @@ Done - TODO: Make time larger font
 
 
 
-  <body onload="mytime()">
+  <body onload="mytime()" style="padding-top: 0rem;">
     <script type="text/javascript">
 
       var dLatitude = 43.4590806;
       var dLongitude = -80.5355996;
       //var dLongitude = -8;
 
-
+      // Pad digits to 2 for display...
       function pad(number) {
         return (number < 10 ? "0" : "") + number;
       }
@@ -156,6 +147,7 @@ Done - TODO: Make time larger font
       }
 
 
+      // Main function!
       function useLocation(lat, long) {
 
 
@@ -182,6 +174,36 @@ Done - TODO: Make time larger font
 
         var useDate = getUrlParameter('useDate');
         console.log("URL useDate = " + useDate);
+
+
+        var showtime = getUrlParameter('showtime');
+        if (!showtime || showtime == "yes") {
+          showtime = true;
+        } else {
+          showtime = false;
+          document.getElementById('timehereDiv').style.display = 'none';
+        }
+        console.log("URL showtime = " + showtime);
+
+
+        var showday = getUrlParameter('showday');
+        if (!showday || showday == "day") {
+          showday = true;
+        } else {
+          showday = false;
+        }
+        console.log("URL showday = " + showday);
+
+
+        var showcount = getUrlParameter('showcount');
+        if (!showcount || showcount == "yes") {
+          showcount = true;
+        } else {
+          showcount = false;
+          document.getElementById('countDownTo').style.display = 'none';
+          document.getElementById('countDownTimer').style.display = 'none';
+        }
+        console.log("URL showcount = " + showcount);
 
 
         if (useDate) {
@@ -294,6 +316,80 @@ Done - TODO: Make time larger font
         $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
 
 
+        var PTNames = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Next Fajr', 'Next Sunrise', 'Next Dhuhr', 'Next Asr', 'Next Maghrib', 'Next Isha', '...'];
+        //console.log(PTNames);
+
+        var PTTimes = [];
+        PTTimes.push(moment(prayerTimes.fajr).format('h:mm A'));
+        PTTimes.push(moment(prayerTimes.sunrise).format('h:mm A'));
+        PTTimes.push(moment(prayerTimes.dhuhr).format('h:mm A'));
+        PTTimes.push(moment(prayerTimes.asr).format('h:mm A'));
+        PTTimes.push(moment(prayerTimes.maghrib).format('h:mm A'));
+        PTTimes.push(moment(prayerTimes.isha).format('h:mm A'));
+
+        PTTimes.push(moment(nextPrayerTimes.fajr).format('h:mm A'));
+        PTTimes.push(moment(nextPrayerTimes.sunrise).format('h:mm A'));
+        PTTimes.push(moment(nextPrayerTimes.dhuhr).format('h:mm A'));
+        PTTimes.push(moment(nextPrayerTimes.asr).format('h:mm A'));
+        PTTimes.push(moment(nextPrayerTimes.maghrib).format('h:mm A'));
+        PTTimes.push(moment(nextPrayerTimes.isha).format('h:mm A'));
+        
+        PTTimes.push('...');
+        
+        //console.log(PTTimes);
+
+
+        aStar = "> "
+        var np = prayerName(prayerTimes.nextPrayer());
+        //if (np == "None") { np = "nextfajr"; }
+        console.log("np = " + np);
+
+        indexOf = (arr, q) => arr.findIndex(item => q.toLowerCase() === item.toLowerCase());
+        
+        var npIndex = indexOf(PTNames, np);
+        if (npIndex < 0) {
+          npIndex = 6;
+        }
+        console.log('npIndex = ' + npIndex);
+
+
+        if (showday) {
+
+          for (let i = 0; i < 7; i++) {
+            //console.log(i);
+            if (i == npIndex) {
+              $("#row" + i + "left").html(PTNames[i]);
+              $("#row" + i + "right").html(aStar + PTTimes[i]);
+              $("#row" + i).addClass('table-active');
+            } else {
+              $("#row" + i + "left").html(PTNames[i]);
+              $("#row" + i + "right").html(PTTimes[i]);
+            }
+          }
+//TODO: Deal with pastMidnight ???
+
+
+        } else {
+          
+          for (let i = npIndex; i < 7+npIndex; i++) {
+            //console.log("i = " + i);
+            j = i-npIndex;
+            //console.log("j = " + j);
+            if (i == npIndex) {
+              $("#row" + j + "left").html(PTNames[i]);
+              $("#row" + j + "right").html(aStar + PTTimes[i]);
+              $("#row" + j).addClass('table-active');
+            } else {
+              $("#row" + j + "left").html(PTNames[i]);
+              $("#row" + j + "right").html(PTTimes[i]);
+            }
+          }
+
+        }
+
+
+/*
+
         $("#fajr").html(moment(prayerTimes.fajr).format('h:mm A'));
         $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
         $("#dhuhr").html(moment(prayerTimes.dhuhr).format('h:mm A'));
@@ -302,11 +398,11 @@ Done - TODO: Make time larger font
         $("#isha").html(moment(prayerTimes.isha).format('h:mm A'));
         $("#nextfajr").html(moment(nextPrayerTimes.fajr).format('h:mm A'));
 
-
         aStar = "> "
         var np = prayerName(prayerTimes.nextPrayer());
         if (np == "None") { np = "nextfajr"; }
         console.log("np = " + np);
+
         switch (np) {
           case "Fajr":
             if (pastMidnight) {
@@ -342,6 +438,7 @@ Done - TODO: Make time larger font
             $("#nextfajr").prepend(aStar);
             break;
         }
+*/
 
 
 
@@ -422,7 +519,7 @@ Done - TODO: Make time larger font
             var startRatio = tMinutes;
             var transRatio = startRatio + 20;
             var backgroundStyle = "linear-gradient(to left, " + startColor + " " + startRatio + "%, " + endColor + " " + transRatio + "%)";
-            console.log("backgroundStyle = " + backgroundStyle);
+            //console.log("backgroundStyle = " + backgroundStyle);
             document.body.style.background = backgroundStyle;
 
 
@@ -485,7 +582,7 @@ Done - TODO: Make time larger font
     </script>
 
 
-    <main id="countDownDiv" role="main">
+    <main id="countDownDiv" role="main" class="sticky-top">
 
 
       <div  class="container" id="optionDiv" style="display: none;">
@@ -525,8 +622,10 @@ Done - TODO: Make time larger font
             </div>
     -->
             <div class="row" id="CalculationMethod">
-              <label for="CalculationMethod">Calculation Method</label>
-              <div class="col-4">
+              <div class="col">
+                <label for="CalculationMethod">Calculation Method</label>
+              </div>
+              <div class="col">
                 <select class="form-select" aria-label="CalculationMethod" id="CalculationMethod" name="CalculationMethod">
                   <option value="NorthAmerica" selected>NorthAmerica</option>
                   <option value="UmmAlQura">UmmAlQura</option>
@@ -544,21 +643,13 @@ Done - TODO: Make time larger font
                 </select>
               </div>
             </div>
-    
-            <div class="row" id="fasting">
-              <label for="fasting">Countdown Mode</label>
-              <div class="col-4">
-                <select class="form-select" aria-label="fasting" id="fasting" name="fasting">
-                  <option value="1">Fasting</option>
-                  <option value="" selected>auto</option>
-                  <option value="0">Not fasting</option>
-                </select>
-              </div>
-            </div>
-    
+
+
             <div class="row" id="madhab">
-              <label for="madhab">Madhab</label>
-              <div class="col-4">
+              <div class="col">
+                <label for="madhab">Madhab</label>
+              </div>
+              <div class="col">
                 <select class="form-select" aria-label="madhab" id="madhab" name="madhab">
                   <option value="Shafi" selected>Shafi</option>
                   <option value="Hanafi">Hanafi</option>
@@ -566,6 +657,63 @@ Done - TODO: Make time larger font
               </div>
             </div>
     
+    
+            <div class="row" id="fasting">
+              <div class="col">
+                <label for="fasting">Countdown Mode</label>
+              </div>
+              <div class="col">
+                <select class="form-select" aria-label="fasting" id="fasting" name="fasting">
+                  <option value="1">Fasting</option>
+                  <option value="" selected>Auto</option>
+                  <option value="0">Not fasting</option>
+                </select>
+              </div>
+            </div>
+    
+
+
+
+            <div class="row" id="showday">
+              <div class="col">
+                <label for="showday">Show Mode</label>
+              </div>
+              <div class="col">
+                <select class="form-select" aria-label="showday" id="showday" name="showday">
+                  <option value="day" selected>Day + Next Fajr</option>
+                  <option value="next">Next 7</option>
+                </select>
+              </div>
+            </div>
+    
+
+            <div class="row" id="showcount">
+              <div class="col">
+                <label for="showcount">Show Countdown</label>
+              </div>
+              <div class="col">
+                <select class="form-select" aria-label="showcount" id="showcount" name="showcount">
+                  <option value="yes" selected>Yes</option>
+                  <option value="no">No</option>
+                </select>
+                <!-- <input class="form-check-input" type="checkbox" value="yes" id="showcount" checked> -->
+              </div>
+            </div>
+    
+
+            <div class="row" id="showtime">
+              <div class="col">
+                <label for="showtime">Show Clock</label>
+              </div>
+              <div class="col">
+                <select class="form-select" aria-label="showtime" id="showtime" name="showtime">
+                  <option value="yes" selected>Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+            </div>
+
+
     
             <div class="row mt-3">
               <div class="col">
@@ -604,7 +752,7 @@ Done - TODO: Make time larger font
         </div>
   
   
-        <div class="container">
+        <div class="container" id="timehereDiv">
           <div class="row">
             <div class="col" style="position:fixed;top:0;left:0;">
               <p style="display:inline; background-color: lightgray;" id="timehere"></p>
@@ -620,6 +768,39 @@ Done - TODO: Make time larger font
   
          <table class="table" style="font-size: 3vw;">
              <tbody>
+<!-- look into dynamically building the table using JS -->
+                 <tr id="row0">
+                     <td id="row0left">0</td>
+                     <td id="row0right">0</td>
+                 </tr>
+                 <tr id="row1">
+                     <td id="row1left">1</td>
+                     <td id="row1right">1</td>
+                 </tr>
+                 <tr id="row2">
+                     <td id="row2left">2</td>
+                     <td id="row2right">2</td>
+                 </tr>
+                 <tr id="row3">
+                     <td id="row3left">3</td>
+                     <td id="row3right">3</td>
+                 </tr>
+                 <tr id="row4">
+                     <td id="row4left">4</td>
+                     <td id="row4right">4</td>
+                 </tr>
+                 <tr id="row5">
+                     <td id="row5left">5</td>
+                     <td id="row5right">5</td>
+                 </tr>
+                 <tr id="row6">
+                     <td id="row6left">6</td>
+                     <td id="row6right">6</td>
+                 </tr>
+
+
+
+<!--
                  <tr id="fajrRow">
                      <td>Fajr</td>
                      <td id="fajr">fajr time</td>
@@ -628,7 +809,7 @@ Done - TODO: Make time larger font
                    <td>Sunrise</td>
                      <td id="sunrise">sunrise time</td>
                  </tr>
-                 <tr id="dhuhrRow"><!-- class="table-active" -->
+                 <tr id="dhuhrRow">
                      <td>Dhuhr</td>
                      <td id="dhuhr">dhuhr time</td>
                  </tr>
@@ -648,7 +829,10 @@ Done - TODO: Make time larger font
                      <td>Next Fajr</td>
                      <td id="nextfajr">nextfajr time</td>
                  </tr>
-  
+-->
+
+
+
              </tbody>
          </table>
   
