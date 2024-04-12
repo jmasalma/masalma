@@ -1,4 +1,33 @@
 
+<!--
+
+TODO: Fix font sizes to change dynamically based on horizontal page size
+
+TODO: Snow next day prayers, current prayer to next 6 records (not just next fajr)
+
+TODO: Add option to disable countdown and just show prayer times (Need to deal with refresh of page issue)
+
+TODO:
+
+TODO:
+
+TODO:
+
+TODO:
+
+Done - TODO: Color gradiant based on countdown to zero..
+
+Done - TODO: integrate option in same page...
+
+Done - TODO: Make time larger font
+
+
+
+
+-->
+
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -57,7 +86,7 @@
 
       var dLatitude = 43.4590806;
       var dLongitude = -80.5355996;
-      //var dLongitude = 5;
+      //var dLongitude = -8;
 
 
       function pad(number) {
@@ -359,6 +388,7 @@
           var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           var seconds = Math.floor((distance % (1000 * 60)) / 1000);
         
+/*
           var countDownText = "";
           if (hours == 0 ) {
             if (minutes < 15) {
@@ -373,12 +403,41 @@
           } else {
             countDownText = hours + "h " + pad(minutes) + "m " + pad(seconds) + "s ";
           }
-          $("#countDown").html(nextP + " in<br />" + countDownText);
+*/
+          var countDownText = "";
+          if (hours == 0 ) {
+            countDownText = pad(minutes) + "m " + pad(seconds) + "s ";
+          } else {
+            countDownText = hours + "h " + pad(minutes) + "m " + pad(seconds) + "s ";
+          }
+
+
+          var tMinutes = (minutes + (hours * 60));
+          if (tMinutes <= 100) {
+
+
+            //background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
+            var startColor = "gray";
+            var endColor = "red";
+            var startRatio = tMinutes;
+            var transRatio = startRatio + 20;
+            var backgroundStyle = "linear-gradient(to left, " + startColor + " " + startRatio + "%, " + endColor + " " + transRatio + "%)";
+            console.log("backgroundStyle = " + backgroundStyle);
+            document.body.style.background = backgroundStyle;
+
+
+          }
+          
+          
+          
+          $("#countDownTo").html(nextP + " in");
+          $("#countDownTimer").html(countDownText);
 
           if (distance < 0) {
             clearInterval(x);
             $('body').css('background-color', 'lightgreen');
-            $("#countDown").html("Done...");
+            $("#countDownTo").html("Done");
+            $("#countDownTimer").html("...");
             //window.location.reload();
             setTimeout(location.reload.bind(location), 60000);
 
@@ -428,100 +487,201 @@
 
     <main id="countDownDiv" role="main">
 
-      <div style="position: fixed; top : 0; right: 0;">
-            <a href="#" id="toggle_fullscreen">
-              <img src="fs.png" alt="Enter fullscreen" />
-            </a>
+
+      <div  class="container" id="optionDiv" style="display: none;">
+
+        <div class="container">
+          <h1 class="fw-bolder">
+            Options
+          </h1>
+        </div>
+    
+        <div class="container">
+  
+          <form name="options" method="get" class="needs-validation" novalidate>
+    <!--      <form name="options" action="."          method="get" class="needs-validation" novalidate> -->
+    <!--      <form name="options" action="index.html" method="get" class="needs-validation" novalidate> -->
+    
+    <!--
+            <div class="row ">
+              <div class="col form-floating">
+                <input type="text" class="form-control" name="latitude" />
+                <label for="latitude" class="form-label">Latitude</label>
+              </div>
+            </div>
+    
+            <div class="row ">
+              <div class="col form-floating">
+                <input type="text" class="form-control" name="longitude" />
+                <label for="longitude" class="form-label">Longitude</label>
+              </div>
+            </div>
+    
+            <div class="row ">
+              <div class="col form-floating">
+                <input type="text" class="form-control" name="useDate" />
+                <label for="useDate" class="form-label">Date (yyyy/mm/dd)</label>
+              </div>
+            </div>
+    -->
+            <div class="row" id="CalculationMethod">
+              <label for="CalculationMethod">Calculation Method</label>
+              <div class="col-4">
+                <select class="form-select" aria-label="CalculationMethod" id="CalculationMethod" name="CalculationMethod">
+                  <option value="NorthAmerica" selected>NorthAmerica</option>
+                  <option value="UmmAlQura">UmmAlQura</option>
+                  <option value="MoonsightingCommittee">MoonsightingCommittee</option>
+                  <option value="MuslimWorldLeague">MuslimWorldLeague</option>
+                  <option value="Dubai">Dubai</option>
+                  <option value="Egyptian">Egyptian</option>
+                  <option value="Karachi">Karachi</option>
+                  <option value="Qatar">Qatar</option>
+                  <option value="Singapore">Singapore</option>
+                  <option value="Tehran">Tehran</option>
+                  <option value="Turkey">Turkey</option>
+                  <option value="Kuwait">Kuwait</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+    
+            <div class="row" id="fasting">
+              <label for="fasting">Countdown Mode</label>
+              <div class="col-4">
+                <select class="form-select" aria-label="fasting" id="fasting" name="fasting">
+                  <option value="1">Fasting</option>
+                  <option value="" selected>auto</option>
+                  <option value="0">Not fasting</option>
+                </select>
+              </div>
+            </div>
+    
+            <div class="row" id="madhab">
+              <label for="madhab">Madhab</label>
+              <div class="col-4">
+                <select class="form-select" aria-label="madhab" id="madhab" name="madhab">
+                  <option value="Shafi" selected>Shafi</option>
+                  <option value="Hanafi">Hanafi</option>
+                </select>
+              </div>
+            </div>
+    
+    
+            <div class="row mt-3">
+              <div class="col">
+                <button id="myButton" type="submit" value="Submit" class="btn btn-primary w-100">Submit</button>
+              </div>
+              <div class="col">
+                <button type="button" class="btn btn-warning w-100" onClick="window.location.href = '.';">Cancel</button>
+              </div>
+            </div>
+    
+    
+          </form>
+  
+        </div>
+
       </div>
+        
+      
+      <div  class="container" id="pageDiv" style="display: block;">
 
-
-      <div  class="container">
-        <h1 class="fw-bolder text-center text-top display-1">
-          <p id="countDown">Countdown<br />Timer</p>
-        </h1>
-        <h4 class="fw-normal text-center fst-italic">
-          <p style="display:inline" id="PTDate">date...</p>
-        </h4>
-      </div>
-
-
-      <div class="container">
-        <div class="row">
-          <div class="col" style="position:fixed;top:0;left:0;">
-            <p style="display:inline; background-color: lightgray;" id="timehere"></p>
+        <div style="position: fixed; top : 0; right: 0;">
+              <a href="#" id="toggle_fullscreen">
+                <img src="fs.png" alt="Enter fullscreen" />
+              </a>
+        </div>
+  
+  
+        <div  class="container">
+          <h1>
+            <p id="countDownTo" class="text-center text-top display-3">Countdown</p>
+            <p id="countDownTimer" class="fw-bolder text-center text-top display-1">Timer</p>
+          </h1>
+          <h4 class="fw-normal text-center fst-italic">
+            <p style="display:inline" id="PTDate">date...</p>
+          </h4>
+        </div>
+  
+  
+        <div class="container">
+          <div class="row">
+            <div class="col" style="position:fixed;top:0;left:0;">
+              <p style="display:inline; background-color: lightgray;" id="timehere"></p>
+            </div>
           </div>
         </div>
-      </div>
-
-
-
-
-
-      <div class="container">
-
-       <table class="table" style="font-size: 3vw;">
-           <tbody>
-               <tr id="fajrRow">
-                   <td>Fajr</td>
-                   <td id="fajr">fajr time</td>
-               </tr>
-               <tr id="sunriseRow">
-                 <td>Sunrise</td>
-                   <td id="sunrise">sunrise time</td>
-               </tr>
-               <tr id="dhuhrRow"><!-- class="table-active" -->
-                   <td>Dhuhr</td>
-                   <td id="dhuhr">dhuhr time</td>
-               </tr>
-               <tr id="asrRow">
-                   <td>Asr</td>
-                   <td id="asr">asr time</td>
-               </tr>
-               <tr id="maghribRow">
-                   <td>Maghrib</td>
-                   <td id="maghrib">maghrib time</td>
-               </tr>
-               <tr id="ishaRow">
-                   <td>Isha</td>
-                   <td id="isha">isha time</td>
-               </tr>
-               <tr id="nextfajrRow">
-                   <td>Next Fajr</td>
-                   <td id="nextfajr">nextfajr time</td>
-               </tr>
-
-           </tbody>
-       </table>
-
-       <br />
-
-       <div class="container">
-
-           <div class="row">
-               <div class="col-sm">Qibla Direction</div>
-               <div class="col-sm" id="qibla">qibla direction</div>
-           </div>
-           <div class="row">
-               <div class="col-sm">Lat/Long</div>
-               <div class="col-sm" id="latLong">lat/long</div>
-           </div>
-
-       </div>
-       <div class="container" style="font-size: 1.5vw;">
-           <div class="row">
-               <div class="col">
-                   <a href="options.html">Options</a>
+  
+  
+  
+  
+  
+        <div class="container">
+  
+         <table class="table" style="font-size: 3vw;">
+             <tbody>
+                 <tr id="fajrRow">
+                     <td>Fajr</td>
+                     <td id="fajr">fajr time</td>
+                 </tr>
+                 <tr id="sunriseRow">
+                   <td>Sunrise</td>
+                     <td id="sunrise">sunrise time</td>
+                 </tr>
+                 <tr id="dhuhrRow"><!-- class="table-active" -->
+                     <td>Dhuhr</td>
+                     <td id="dhuhr">dhuhr time</td>
+                 </tr>
+                 <tr id="asrRow">
+                     <td>Asr</td>
+                     <td id="asr">asr time</td>
+                 </tr>
+                 <tr id="maghribRow">
+                     <td>Maghrib</td>
+                     <td id="maghrib">maghrib time</td>
+                 </tr>
+                 <tr id="ishaRow">
+                     <td>Isha</td>
+                     <td id="isha">isha time</td>
+                 </tr>
+                 <tr id="nextfajrRow">
+                     <td>Next Fajr</td>
+                     <td id="nextfajr">nextfajr time</td>
+                 </tr>
+  
+             </tbody>
+         </table>
+  
+         <br />
+  
+         <div class="container">
+  
+             <div class="row">
+                 <div class="col-sm">Qibla Direction</div>
+                 <div class="col-sm" id="qibla">qibla direction</div>
              </div>
-           </div>
-           <div class="row">
-               <div class="col">
-                   Please check you local masjid for official times
+             <div class="row">
+                 <div class="col-sm">Lat/Long</div>
+                 <div class="col-sm" id="latLong">lat/long</div>
+             </div>
+  
+         </div>
+         <div class="container" style="font-size: 1.5vw;">
+             <div class="row">
+                 <div class="col">
+                     <a href="#" onClick="document.getElementById('optionDiv').style.display = 'block';">Options</a>
                </div>
-           </div>
+             </div>
+             <div class="row">
+                 <div class="col">
+                     Please check you local masjid for official times
+                 </div>
+             </div>
+         </div>
+  
        </div>
 
      </div>
-
 
     </main>
   

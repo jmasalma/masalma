@@ -7,8 +7,8 @@ body {
   background-repeat: repeat;
   background-color: gray;
   /*color: black;*/
+  /*font-size: rem(14);*/ /* Sets base font size and scales proportionally */
 }
-
 
 
 .tooltip-inner {
@@ -21,6 +21,6 @@ body {
   display: none;
 }
 .footer-text:after {
-  content: '© Masalma.com                v.20240411.01';
+  content: '© Masalma.com                v.20240412.01';
 }
 
