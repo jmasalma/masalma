@@ -77,7 +77,7 @@ TODO:
 
       var dLatitude = 43.4590806;
       var dLongitude = -80.5355996;
-      //var dLongitude = -8;
+      //var dLongitude = 55;
 
       // Pad digits to 2 for display...
       function pad(number) {
@@ -353,6 +353,7 @@ TODO:
         console.log('npIndex = ' + npIndex);
 
 
+        var highlightRowIndex = npIndex;
         if (showday) {
 
           for (let i = 0; i < 7; i++) {
@@ -379,6 +380,7 @@ TODO:
               $("#row" + j + "left").html(PTNames[i]);
               $("#row" + j + "right").html(aStar + PTTimes[i]);
               $("#row" + j).addClass('table-active');
+              highlightRowIndex = j;
             } else {
               $("#row" + j + "left").html(PTNames[i]);
               $("#row" + j + "right").html(PTTimes[i]);
@@ -510,17 +512,23 @@ TODO:
 
 
           var tMinutes = (minutes + (hours * 60));
-          if (tMinutes <= 100) {
 
-
+          var minGradientStart = 30;
+          if (tMinutes <= minGradientStart) {
             //background: linear-gradient(to bottom, #33ccff 0%, #ff99cc 100%);
             var startColor = "gray";
             var endColor = "red";
-            var startRatio = tMinutes;
-            var transRatio = startRatio + 20;
+            var startRatio = Math.floor((tMinutes * 100) / minGradientStart);
+            var transRatio = startRatio + 15;
             var backgroundStyle = "linear-gradient(to left, " + startColor + " " + startRatio + "%, " + endColor + " " + transRatio + "%)";
             //console.log("backgroundStyle = " + backgroundStyle);
-            document.body.style.background = backgroundStyle;
+            //document.body.style.background = backgroundStyle;
+            //highlightRowIndex
+            //console.log("highlightRowIndex = " + highlightRowIndex);
+            document.getElementById('row' + highlightRowIndex).style.background = backgroundStyle;
+            //countDownTimer
+            document.getElementById("countDownTimer").style.background = backgroundStyle;
+            
 
 
           }
