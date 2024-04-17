@@ -10,6 +10,9 @@ body {
   /*font-size: rem(14);*/ /* Sets base font size and scales proportionally */
 }
 
+#countDownDiv::backdrop {
+    background-color: gray;
+}
 
 .tooltip-inner {
     text-align: left;
@@ -21,6 +24,5 @@ body {
   display: none;
 }
 .footer-text:after {
-  content: '© Masalma.com                v.20240412.01';
+  content: '© Masalma.com                v.20240417.01';
 }
-

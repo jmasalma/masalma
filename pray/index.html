@@ -156,8 +156,10 @@ TODO:
           // else go fullscreen
           if (document.fullscreenElement) {
             document.exitFullscreen();
+            $("#fullscreen_img").attr("src","fs.png");
           } else {
             $('#countDownDiv').get(0).requestFullscreen();
+            $("#fullscreen_img").attr("src","ns.png");
           }
         });
 
@@ -744,7 +746,7 @@ TODO:
 
         <div style="position: fixed; top : 0; right: 0;">
               <a href="#" id="toggle_fullscreen">
-                <img src="fs.png" alt="Enter fullscreen" />
+                <img id="fullscreen_img" src="fs.png" style="opacity: 0.2;" alt="Enter/Exit fullscreen" />
               </a>
         </div>
   
