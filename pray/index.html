@@ -595,7 +595,7 @@ TODO:
     <main id="countDownDiv" role="main" class="sticky-top">
 
 
-      <div  class="container" id="optionDiv" style="display: none;">
+      <div  class="container" id="optionDiv" style="display: none; font-size: calc(3vmax);">
 
         <div class="container">
           <h1 class="fw-bolder">
@@ -751,7 +751,7 @@ TODO:
         </div>
   
   
-        <div  class="container">
+        <div  class="container" style="font-size: calc(4vmax);">
           <h1>
             <p id="countDownTo" class="text-center text-top display-3">Countdown</p>
             <p id="countDownTimer" class="fw-bolder text-center text-top display-1">Timer</p>
@@ -776,7 +776,8 @@ TODO:
   
         <div class="container">
   
-         <table class="table" style="font-size: 3vw;">
+<!--         <table class="table" style="font-size: 3vw;"> -->
+         <table class="table table-sm" style="font-size: calc(3.5vmax);">
              <tbody>
 <!-- look into dynamically building the table using JS -->
                  <tr id="row0">
@@ -850,36 +851,49 @@ TODO:
   
          <div class="container">
   
-             <div class="row">
-                 <div class="col-sm">Qibla Direction</div>
-                 <div class="col-sm" id="qibla">qibla direction</div>
-             </div>
-             <div class="row">
-                 <div class="col-sm">Lat/Long</div>
-                 <div class="col-sm" id="latLong">lat/long</div>
-             </div>
+  
+            <table class="table table-sm table-borderless" style="font-size: calc(2vmax);">
+              <tbody>
+                 <tr>
+                     <td>Qibla Direction</td>
+                     <td id="qibla">qibla direction</td>
+                 </tr>
+                 <tr>
+                     <td>Lat/Long</td>
+                     <td id="latLong">lat/long</td>
+                 </tr>
+              </tbody>
+            </table>
+
+  
   
          </div>
-         <div class="container" style="font-size: 1.5vw;">
+         <!-- <div class="container" style="font-size: 1.5vw;"> -->
+
+         <div class="container" style="font-size: calc(2vmax);">
              <div class="row">
-                 <div class="col">
+                <div class="col">
                      <a href="#" onClick="document.getElementById('optionDiv').style.display = 'block';">Options</a>
-               </div>
+                </div>
              </div>
+         </div>
+  
+         <div class="container" style="font-size: calc(1.5vmax);">
              <div class="row">
                  <div class="col">
                      Please check you local masjid for official times
                  </div>
              </div>
          </div>
-  
+
+
        </div>
 
      </div>
 
     </main>
   
-    <div class="navbar fixed-bottom ms-3 me-3 footer-text"><small><span>© JM</span></small></div>
+    <div class="navbar fixed-bottom ms-3 me-3 footer-text" style="font-size: 1vw;"><small><span>© JM</span></small></div>
   
   </body>
 </html>
