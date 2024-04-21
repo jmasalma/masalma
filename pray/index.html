@@ -1,17 +1,23 @@
 
 <!--
 
-TODO: Fix font sizes to change dynamically based on horizontal page size
-
 TODO: test for before and after midnight
 
+TODO: try to find city name?
+
+TODO: rerun JS without reloading page so full screen mode does not exit?
+
+TODO:
+
+TODO:
+
 TODO:
 
 TODO:
 
 TODO:
 
-
+TODO:
 
 
 
@@ -547,6 +553,7 @@ TODO:
             $("#countDownTimer").html("Done");
             //window.location.reload();
             setTimeout(location.reload.bind(location), 60000);
+            // TODO: Try to rerun JS without reloading page
 
           }
         }, 1000);
@@ -592,7 +599,32 @@ TODO:
     </script>
 
 
+
+
+
+
+    <div id="header"></div>
+
+
     <main id="countDownDiv" role="main" class="sticky-top">
+
+
+      <!-- full screen -->
+      <div style="position: fixed; top : 0; right: 0;">
+            <a href="#" id="toggle_fullscreen">
+              <img id="fullscreen_img" src="fs.png" style="opacity: 0.2;" alt="Enter/Exit fullscreen" />
+            </a>
+      </div>
+
+      <!-- Clock -->
+      <div class="container" id="timehereDiv">
+        <div class="row">
+          <div class="col" style="position:fixed;top:0;left:10%;">
+            <p style="display:inline; background-color: lightgray;" id="timehere"></p>
+          </div>
+        </div>
+      </div>
+
 
 
       <div  class="container" id="optionDiv" style="display: none; font-size: calc(3vmax);">
@@ -744,13 +776,9 @@ TODO:
       
       <div  class="container" id="pageDiv" style="display: block;">
 
-        <div style="position: fixed; top : 0; right: 0;">
-              <a href="#" id="toggle_fullscreen">
-                <img id="fullscreen_img" src="fs.png" style="opacity: 0.2;" alt="Enter/Exit fullscreen" />
-              </a>
-        </div>
-  
-  
+
+
+
         <div  class="container" style="font-size: calc(4vmax);">
           <h1>
             <p id="countDownTo" class="text-center text-top display-3">Countdown</p>
@@ -762,13 +790,6 @@ TODO:
         </div>
   
   
-        <div class="container" id="timehereDiv">
-          <div class="row">
-            <div class="col" style="position:fixed;top:0;left:0;">
-              <p style="display:inline; background-color: lightgray;" id="timehere"></p>
-            </div>
-          </div>
-        </div>
   
   
   
@@ -893,7 +914,15 @@ TODO:
 
     </main>
   
-    <div class="navbar fixed-bottom ms-3 me-3 footer-text" style="font-size: 1vw;"><small><span>© JM</span></small></div>
+    <div id="footer"></div>
+
+    <script>
+    $(function(){
+      $("#header").load("../header.html");
+      $("#footer").load("../footer.html");
+    });
+    </script>
+
   
   </body>
 </html>
