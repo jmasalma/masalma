@@ -7,7 +7,7 @@ TODO: try to find city name?
 
 TODO: rerun JS without reloading page so full screen mode does not exit?
 
-TODO:
+TODO: localize
 
 TODO:
 
@@ -318,10 +318,10 @@ TODO:
         
 
 
-        var higriMonth = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {month: 'long',}).format(Date.now());
+        var higriMonth = new Intl.DateTimeFormat('en-TN-u-ca-islamic-civil', {month: 'long',}).format(Date.now());
 
 
-        $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
+        $("#PTDate").html(new Intl.DateTimeFormat('en-TN-u-ca-islamic-civil', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now()) + " - " + moment(date).format('MMMM DD, YYYY'));
 
 
         var PTNames = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Next Fajr', 'Next Sunrise', 'Next Dhuhr', 'Next Asr', 'Next Maghrib', 'Next Isha', '...'];
