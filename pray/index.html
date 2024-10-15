@@ -83,7 +83,7 @@ TODO:
 
       var dLatitude = 43.4590806;
       var dLongitude = -80.5355996;
-      //var dLongitude = 55;
+      //var dLongitude = -95.6; //DEBUG
 
       // Pad digits to 2 for display...
       function pad(number) {
@@ -373,6 +373,7 @@ TODO:
             } else {
               $("#row" + i + "left").html(PTNames[i]);
               $("#row" + i + "right").html(PTTimes[i]);
+              $("#row" + i).removeClass('table-active');
             }
           }
 //TODO: Deal with pastMidnight ???
@@ -392,64 +393,11 @@ TODO:
             } else {
               $("#row" + j + "left").html(PTNames[i]);
               $("#row" + j + "right").html(PTTimes[i]);
+              $("#row" + i).removeClass('table-active');
             }
           }
 
         }
-
-
-/*
-
-        $("#fajr").html(moment(prayerTimes.fajr).format('h:mm A'));
-        $("#sunrise").html(moment(prayerTimes.sunrise).format('h:mm A'));
-        $("#dhuhr").html(moment(prayerTimes.dhuhr).format('h:mm A'));
-        $("#asr").html(moment(prayerTimes.asr).format('h:mm A'));
-        $("#maghrib").html(moment(prayerTimes.maghrib).format('h:mm A'));
-        $("#isha").html(moment(prayerTimes.isha).format('h:mm A'));
-        $("#nextfajr").html(moment(nextPrayerTimes.fajr).format('h:mm A'));
-
-        aStar = "> "
-        var np = prayerName(prayerTimes.nextPrayer());
-        if (np == "None") { np = "nextfajr"; }
-        console.log("np = " + np);
-
-        switch (np) {
-          case "Fajr":
-            if (pastMidnight) {
-              $("#fajrRow").addClass('table-active');
-              $("#fajr").prepend(aStar);
-            } else {
-              $("#nextfajrRow").addClass('table-active');
-              $("#nextfajr").prepend(aStar);
-            }
-            break;
-          case "Sunrise":
-            $("#sunriseRow").addClass('table-active');
-            $("#sunrise").prepend(aStar);
-            break;
-          case "Dhuhr":
-            $("#dhuhrRow").addClass('table-active');
-            $('#dhuhr').prepend(aStar);
-            break;
-          case "Asr":
-            $("#asrRow").addClass('table-active');
-            $("#asr").prepend(aStar);
-            break;
-          case "Maghrib":
-            $("#maghribRow").addClass('table-active');
-            $("#maghrib").prepend(aStar);
-            break;
-          case "Isha":
-            $("#ishaRow").addClass('table-active');
-            $("#isha").prepend(aStar);
-            break;
-          case "nextfajr":
-            $("#nextfajrRow").addClass('table-active');
-            $("#nextfajr").prepend(aStar);
-            break;
-        }
-*/
-
 
 
 
@@ -494,23 +442,8 @@ TODO:
           var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
           var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-/*
-          var countDownText = "";
-          if (hours == 0 ) {
-            if (minutes < 15) {
-              countDownText = "<b style='color:red;'>" + pad(minutes) + "m " + pad(seconds) + "s </b>";
-              document.body.style.backgroundColor = "LightPink"; //"#FF474C";
-              if (minutes < 5) {
-                document.body.style.backgroundColor = "LightCoral"; //"#FF474C";
-              }
-            } else {
-              countDownText = pad(minutes) + "m " + pad(seconds) + "s ";
-            }
-          } else {
-            countDownText = hours + "h " + pad(minutes) + "m " + pad(seconds) + "s ";
-          }
-*/
+
+
           var countDownText = "";
           if (hours == 0 ) {
             countDownText = pad(minutes) + "m " + pad(seconds) + "s ";
@@ -539,6 +472,11 @@ TODO:
             
 
 
+          } else {
+            for (let i = 0; i < 7; i++) {
+              document.getElementById('row' + i).style.background = "gray";
+            }
+            document.getElementById("countDownTimer").style.background = "gray";
           }
           
           
@@ -551,9 +489,13 @@ TODO:
             $('body').css('background-color', 'lightgreen');
             //$("#countDownTo").html("Done");
             $("#countDownTimer").html("Done");
-            //window.location.reload();
-            setTimeout(location.reload.bind(location), 60000);
-            // TODO: Try to rerun JS without reloading page
+            //setTimeout(window.location.reload.bind(window.location), 6000); //DEBUG
+            //setTimeout(window.location.reload(1), 6000); //DEBUG
+            //setTimeout(getLocation, 6000); //DEBUG
+            $('body').css('background-color', 'lightgreen');
+            setTimeout(useLocation(dLatitude, dLongitude), 60000);
+            $('body').css('background-color', 'lightgreen');
+            setTimeout(function(){$('body').css('background-color', 'gray')}, 10000);
 
           }
         }, 1000);
@@ -565,9 +507,12 @@ TODO:
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (position) => {
-              const latitude = position.coords.latitude;
-              const longitude = position.coords.longitude;
-              useLocation(latitude, longitude);
+              //const latitude = position.coords.latitude;
+              //const longitude = position.coords.longitude;
+              //useLocation(latitude, longitude);
+              dLatitude = position.coords.latitude; //DEBUG
+              dLongitude = position.coords.longitude; //DEBUG
+              useLocation(dLatitude, dLongitude);
             },
             (error) => {
               console.error("Error getting location:", error.message);
@@ -594,7 +539,14 @@ TODO:
         getLocation();
       }
 
-
+//DEBUG
+/*      if (dLatitude && dLongitude) {
+        console.log("useLocation(" + dLatitude +", " + dLongitude + ");");
+        useLocation(dLatitude, dLongitude);
+      } else {
+        getLocation();
+      }
+*/
 
     </script>
 
@@ -834,38 +786,6 @@ TODO:
                      <td id="row6right">6</td>
                  </tr>
 
-
-
-<!--
-                 <tr id="fajrRow">
-                     <td>Fajr</td>
-                     <td id="fajr">fajr time</td>
-                 </tr>
-                 <tr id="sunriseRow">
-                   <td>Sunrise</td>
-                     <td id="sunrise">sunrise time</td>
-                 </tr>
-                 <tr id="dhuhrRow">
-                     <td>Dhuhr</td>
-                     <td id="dhuhr">dhuhr time</td>
-                 </tr>
-                 <tr id="asrRow">
-                     <td>Asr</td>
-                     <td id="asr">asr time</td>
-                 </tr>
-                 <tr id="maghribRow">
-                     <td>Maghrib</td>
-                     <td id="maghrib">maghrib time</td>
-                 </tr>
-                 <tr id="ishaRow">
-                     <td>Isha</td>
-                     <td id="isha">isha time</td>
-                 </tr>
-                 <tr id="nextfajrRow">
-                     <td>Next Fajr</td>
-                     <td id="nextfajr">nextfajr time</td>
-                 </tr>
--->
 
 
 
