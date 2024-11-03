@@ -486,6 +486,7 @@ TODO:
 
           if (distance < 0) {
             clearInterval(x);
+            notifyMe("Prayer time", nextP + " prayer is now...");
             $('body').css('background-color', 'lightgreen');
             //$("#countDownTo").html("Done");
             $("#countDownTimer").html("Done");
@@ -539,6 +540,37 @@ TODO:
         getLocation();
       }
 
+
+
+
+Notification.requestPermission();
+
+function notifyMe(title, msg) {
+  if (!("Notification" in window)) {
+    console.log("This browser does not support system notifications");
+  }
+  else if (Notification.permission === "granted") {
+    notify();
+  }
+  else if (Notification.permission !== 'denied') {
+    Notification.requestPermission(function (permission) {
+      if (permission === "granted") {
+        notify();
+      }
+    });
+  }
+
+  function notify(title, msg) {
+    var notification = new Notification(title, {
+      body: msg,
+    });
+
+    setTimeout(notification.close.bind(notification), 7000);
+  }
+
+}
+
+
 //DEBUG
 /*      if (dLatitude && dLongitude) {
         console.log("useLocation(" + dLatitude +", " + dLongitude + ");");
@@ -556,8 +588,6 @@ TODO:
 
 
     <div id="header"></div>
-
-
 
 
 
