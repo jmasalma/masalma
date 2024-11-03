@@ -486,7 +486,7 @@ TODO:
 
           if (distance < 0) {
             clearInterval(x);
-            notifyMe("Prayer time", nextP + " prayer is now...");
+            notifyMe("Prayer time", nextP + " is now...");
             $('body').css('background-color', 'lightgreen');
             //$("#countDownTo").html("Done");
             $("#countDownTimer").html("Done");
@@ -550,12 +550,12 @@ function notifyMe(title, msg) {
     console.log("This browser does not support system notifications");
   }
   else if (Notification.permission === "granted") {
-    notify();
+    notify(title, msg);
   }
   else if (Notification.permission !== 'denied') {
     Notification.requestPermission(function (permission) {
       if (permission === "granted") {
-        notify();
+        notify(title, msg);
       }
     });
   }
