@@ -566,7 +566,7 @@ function notifyMe(title, msg) {
     });
     
     console.log("Nofication: " + title + " - " + msg);
-    setTimeout(notification.close.bind(notification), 7000);
+    setTimeout(notification.close.bind(notification), 1000 * 60 * 60);
   }
 
 }
