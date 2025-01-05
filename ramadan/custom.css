@@ -1,0 +1,47 @@
+body {
+  padding-top: 5rem;
+  padding-bottom: 3rem;
+  background-image: url('bg.jpg');
+  background-color: rgba(255,255,255,0.97);
+  background-blend-mode: lighten;
+  background-repeat: repeat;
+}
+
+
+#result{
+    display: block;
+}
+#result:empty{
+    display: none;
+}
+
+
+#result_w{
+    display: block;
+}
+#result_w:empty{
+    display: none;
+}
+
+
+
+#result_2{
+    display: block;
+}
+#result_2:empty{
+    display: none;
+}
+
+
+.tooltip-inner {
+    text-align: left;
+    max-width: 100% !important;
+}
+
+
+.footer-text span {
+  display: none;
+}
+.footer-text:after {
+  content: '© RenalToolbox.com                v.20230318.01';
+}
