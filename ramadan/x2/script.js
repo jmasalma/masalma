@@ -12,6 +12,8 @@ const questions = {
 $(document).ready(function() {
   // Load today's question
   const today = new Date().getDate();
+  console.log("today = ");
+  console.log(today);
   $('#question-text').text(questions[today] || "No question for today!");
 
   // Submit handler
