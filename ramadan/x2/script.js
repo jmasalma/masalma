@@ -5,6 +5,7 @@ const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 const questions = {
   1: "What is the first meal eaten after sunset during Ramadan called?",
   2: "Which Surah in the Quran mentions Ramadan?",
+  30: "Test question?",
   // ...add all 30 questions
 };
 
