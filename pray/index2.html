@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Prayer Countdown Timer">
+  <meta name="keywords" content="prayer, countdown, adhan, islamic">
+  <title>Prayer Countdown</title>
+  <link rel="stylesheet" href="../bootstrap.min.css">
+  <link rel="stylesheet" href="../custom.css">
+  <script src="../jquery.min.js"></script>
+  <script src="../bootstrap.bundle.min.js"></script>
+  <script src="adhan.umd.min.js"></script>
+  <script src="moment-with-locales.min.js"></script>
+  <script src="moment-timezone-with-data-10-year-range.min.js"></script>
+</head>
+<body onload="initializeApp()">
+  <div id="header"></div>
+  <main id="countDownDiv">
+    <!-- Fullscreen Toggle -->
+    <div style="position: fixed; top: 0; right: 0;">
+      <a href="#" id="toggle_fullscreen">
+        <img id="fullscreen_img" src="fs.png" style="opacity: 0.2;" alt="Enter/Exit fullscreen">
+      </a>
+    </div>
+
+    <!-- Clock -->
+    <div id="timehereDiv">
+      <p id="timehere"></p>
+    </div>
+
+    <!-- Countdown Display -->
+    <div id="countdownDisplay">
+      <h1 id="countDownTo">Countdown</h1>
+      <h1 id="countDownTimer">Timer</h1>
+      <h4 id="PTDate">Date...</h4>
+    </div>
+
+    <!-- Prayer Times Table -->
+    <table id="prayerTimesTable">
+      <tbody>
+        <tr id="row0"><td id="row0left"></td><td id="row0right"></td></tr>
+        <tr id="row1"><td id="row1left"></td><td id="row1right"></td></tr>
+        <tr id="row2"><td id="row2left"></td><td id="row2right"></td></tr>
+        <tr id="row3"><td id="row3left"></td><td id="row3right"></td></tr>
+        <tr id="row4"><td id="row4left"></td><td id="row4right"></td></tr>
+        <tr id="row5"><td id="row5left"></td><td id="row5right"></td></tr>
+        <tr id="row6"><td id="row6left"></td><td id="row6right"></td></tr>
+      </tbody>
+    </table>
+
+    <!-- Qibla and Location -->
+    <div id="qiblaLocation">
+      <p>Qibla Direction: <span id="qibla">0°</span></p>
+      <p>Lat/Long: <span id="latLong">0, 0</span></p>
+    </div>
+
+    <!-- Options Link -->
+    <div id="optionsLink">
+      <a href="#" onclick="showOptions()">Options</a>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+  </main>
+
+  <script>
+    // Global Variables
+    let dLatitude = 43.4590806; // Default latitude
+    let dLongitude = -80.5355996; // Default longitude
+    let countdownInterval;
+
+    // Initialize App
+    function initializeApp() {
+      updateClock();
+      getLocation();
+      setupFullscreenToggle();
+      setupNotifications();
+    }
+
+    // Update Clock
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      let seconds = now.getSeconds();
+      const ampm = hours >= 12 ? 'pm' : 'am';
+
+      hours = hours % 12 || 12; // Convert to 12-hour format
+      minutes = minutes < 10 ? `0${minutes}` : minutes;
+      seconds = seconds < 10 ? `0${seconds}` : seconds;
+
+      document.getElementById('timehere').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+      setTimeout(updateClock, 500);
+    }
+
+    // Get User Location
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            dLatitude = position.coords.latitude;
+            dLongitude = position.coords.longitude;
+            calculatePrayerTimes(dLatitude, dLongitude);
+          },
+          (error) => {
+            console.error("Error getting location:", error.message);
+            calculatePrayerTimes(dLatitude, dLongitude); // Use default coordinates
+          }
+        );
+      } else {
+        console.warn("Geolocation is not supported by this browser.");
+        calculatePrayerTimes(dLatitude, dLongitude); // Use default coordinates
+      }
+    }
+
+    // Calculate Prayer Times
+    function calculatePrayerTimes(lat, long) {
+      const coordinates = new adhan.Coordinates(lat, long);
+      const params = adhan.CalculationMethod.NorthAmerica(); // Default calculation method
+      const date = new Date();
+      const prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
+
+      displayPrayerTimes(prayerTimes);
+      startCountdown(prayerTimes);
+    }
+
+    // Display Prayer Times
+    function displayPrayerTimes(prayerTimes) {
+      const prayerNames = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+      const prayerTimesFormatted = [
+        moment(prayerTimes.fajr).format('h:mm A'),
+        moment(prayerTimes.sunrise).format('h:mm A'),
+        moment(prayerTimes.dhuhr).format('h:mm A'),
+        moment(prayerTimes.asr).format('h:mm A'),
+        moment(prayerTimes.maghrib).format('h:mm A'),
+        moment(prayerTimes.isha).format('h:mm A')
+      ];
+
+      prayerNames.forEach((name, index) => {
+        document.getElementById(`row${index}left`).textContent = name;
+        document.getElementById(`row${index}right`).textContent = prayerTimesFormatted[index];
+      });
+
+      document.getElementById('qibla').textContent = `${Math.round(adhan.Qibla(coordinates))}°`;
+      document.getElementById('latLong').textContent = `${lat}, ${long}`;
+    }
+
+    // Start Countdown
+    function startCountdown(prayerTimes) {
+      const nextPrayer = prayerTimes.nextPrayer();
+      const nextPrayerTime = prayerTimes.timeForPrayer(nextPrayer);
+
+      countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = nextPrayerTime - now;
+
+        if (distance <= 0) {
+          clearInterval(countdownInterval);
+          notifyUser(`Time for ${prayerName(nextPrayer)}`);
+          setTimeout(() => calculatePrayerTimes(dLatitude, dLongitude), 60000); // Refresh after 1 minute
+        } else {
+          updateCountdownDisplay(distance, prayerName(nextPrayer));
+        }
+      }, 1000);
+    }
+
+    // Update Countdown Display
+    function updateCountdownDisplay(distance, nextPrayer) {
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      const countdownText = hours > 0
+        ? `${hours}h ${minutes}m ${seconds}s`
+        : `${minutes}m ${seconds}s`;
+
+      document.getElementById('countDownTo').textContent = `${nextPrayer} in`;
+      document.getElementById('countDownTimer').textContent = countdownText;
+    }
+
+    // Fullscreen Toggle
+    function setupFullscreenToggle() {
+      document.getElementById('toggle_fullscreen').addEventListener('click', () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+          document.getElementById('fullscreen_img').src = 'fs.png';
+        } else {
+          document.documentElement.requestFullscreen();
+          document.getElementById('fullscreen_img').src = 'ns.png';
+        }
+      });
+    }
+
+    // Notifications
+    function setupNotifications() {
+      if (!("Notification" in window)) {
+        console.log("This browser does not support notifications.");
+      } else if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+      }
+    }
+
+    function notifyUser(message) {
+      if (Notification.permission === "granted") {
+        new Notification("Prayer Time", { body: message });
+      }
+    }
+
+    // Helper Functions
+    function prayerName(prayer) {
+      const prayerNames = {
+        [adhan.Prayer.Fajr]: "Fajr",
+        [adhan.Prayer.Sunrise]: "Sunrise",
+        [adhan.Prayer.Dhuhr]: "Dhuhr",
+        [adhan.Prayer.Asr]: "Asr",
+        [adhan.Prayer.Maghrib]: "Maghrib",
+        [adhan.Prayer.Isha]: "Isha",
+        [adhan.Prayer.None]: "None"
+      };
+      return prayerNames[prayer] || "Unknown";
+    }
+
+    // Load Header and Footer
+    $(function() {
+      $("#header").load("../header.html");
+      $("#footer").load("../footer.html");
+    });
+  </script>
+</body>
+</html>
