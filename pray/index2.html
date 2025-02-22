@@ -116,17 +116,17 @@
 
     // Calculate Prayer Times
     function calculatePrayerTimes(lat, long) {
-      const coordinates = new adhan.Coordinates(lat, long);
+      const coordinates = new adhan.Coordinates(lat, long); // Create coordinates here
       const params = adhan.CalculationMethod.NorthAmerica(); // Default calculation method
       const date = new Date();
       const prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
 
-      displayPrayerTimes(prayerTimes);
+      displayPrayerTimes(prayerTimes, coordinates); // Pass coordinates to displayPrayerTimes
       startCountdown(prayerTimes);
     }
 
     // Display Prayer Times
-    function displayPrayerTimes(prayerTimes) {
+    function displayPrayerTimes(prayerTimes, coordinates) {
       const prayerNames = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
       const prayerTimesFormatted = [
         moment(prayerTimes.fajr).format('h:mm A'),
@@ -137,13 +137,18 @@
         moment(prayerTimes.isha).format('h:mm A')
       ];
 
+      // Update the prayer times table
       prayerNames.forEach((name, index) => {
         document.getElementById(`row${index}left`).textContent = name;
         document.getElementById(`row${index}right`).textContent = prayerTimesFormatted[index];
       });
 
-      document.getElementById('qibla').textContent = `${Math.round(adhan.Qibla(coordinates))}°`;
-      document.getElementById('latLong').textContent = `${lat}, ${long}`;
+      // Calculate and display Qibla direction
+      const qiblaDirection = Math.round(adhan.Qibla(coordinates)); // Use the passed coordinates
+      document.getElementById('qibla').textContent = `${qiblaDirection}°`;
+
+      // Display latitude and longitude
+      document.getElementById('latLong').textContent = `${coordinates.latitude}, ${coordinates.longitude}`;
     }
 
     // Start Countdown
