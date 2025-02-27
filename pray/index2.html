@@ -235,6 +235,18 @@ TODO:
             </div>
           </div>
 
+          <div class="row" id="AllowNotification">
+            <div class="col">
+              <label for="AllowNotification">Enable Notification</label>
+            </div>
+            <div class="col">
+              <select class="form-select" aria-label="AllowNotification" id="AllowNotification" name="AllowNotification">
+                <option value="yes" selected>Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+          </div>
+
           <div class="row" id="showtime">
             <div class="col">
               <label for="showtime">Show Clock</label>
@@ -467,7 +479,10 @@ TODO:
         getLocation();
       }
 
-      Notification.requestPermission();
+      var AllowNotification = getUrlParameter('AllowNotification');
+      if (!AllowNotification || AllowNotification == "yes") {
+        Notification.requestPermission();
+      }
     }
 
     function useLocation(lat, long) {
