@@ -6,9 +6,9 @@ TODO: try to find city name?
 
 TODO: localize
 
-TODO:
+TODO: Dynamic calculation method based on region
 
-TODO:
+TODO:Show next prayer as long as iftar and sahoor
 
 TODO:
 
@@ -106,61 +106,6 @@ TODO:
       <div class="container">
 
         <form name="options" method="get" class="needs-validation" novalidate>
-          <!--      <form name="options" action="."          method="get" class="needs-validation" novalidate> -->
-          <!--      <form name="options" action="index.html" method="get" class="needs-validation" novalidate> -->
-
-          <!--
-            <div class="row ">
-              <div class="col form-floating">
-                <input type="text" class="form-control" name="latitude" />
-                <label for="latitude" class="form-label">Latitude</label>
-              </div>
-            </div>
-    
-            <div class="row ">
-              <div class="col form-floating">
-                <input type="text" class="form-control" name="longitude" />
-                <label for="longitude" class="form-label">Longitude</label>
-              </div>
-            </div>
-    
-            <div class="row ">
-              <div class="col form-floating">
-                <input type="text" class="form-control" name="useDate" />
-                <label for="useDate" class="form-label">Date (yyyy/mm/dd)</label>
-              </div>
-            </div>
-    -->
-
-
-    <!-- <div class="row">
-            <div class="col form-floating">
-              <input type="text" class="form-control" name="latitude" id="latitude" />
-              <label for="latitude" class="form-label">Latitude</label>
-            </div>
-          </div> -->
-<!-- 
-          <div class="row">
-            <div class="col form-floating">
-              <input type="text" class="form-control" name="longitude" id="longitude" />
-              <label for="longitude" class="form-label">Longitude</label>
-            </div>
-          </div> -->
-
-<!--           
-          <div class="row" id="longitudeR">
-            <div class="col">
-              <label for="longitudeR">Longitude</label>
-            </div>
-            <div class="col">
-              <div class="row">
-                <div class="col form-floating">
-                  <input type="text" class="form-control" name="longitude" id="longitude" />
-                  <label for="longitude" class="form-label">Longitude</label>
-                </div>
-              </div>
- -->
-
 
           <div class="row" id="CalculationMethod">
             <div class="col">
@@ -259,10 +204,6 @@ TODO:
             </div>
           </div>
 
-
-
-
-
           <div class="row" id="latitude">
             <div class="col">
               <label for="latitude">Latitude</label>
@@ -272,8 +213,6 @@ TODO:
             </div>
           </div>
 
-
-
           <div class="row" id="longitude">
             <div class="col">
               <label for="longitude">Longitude</label>
@@ -282,11 +221,6 @@ TODO:
               <input type="text" class="form-control" name="longitude" id="longitude" />
             </div>
           </div>
-
-
-
-
-
 
           <div class="row mt-3">
             <div class="col">
@@ -666,11 +600,11 @@ TODO:
         if (prayerTimes.nextPrayer() == 'sunrise' || prayerTimes.nextPrayer() == 'dhuhr' || prayerTimes.nextPrayer() == 'asr' || prayerTimes.nextPrayer() == 'maghrib') {
           console.log("next is maghrib");
           var countDownDate = moment(prayerTimes.maghrib);
-          var nextP = "Iftar";
+          var nextP = "Iftar" + " (" + prayerName(prayerTimes.nextPrayer()) + ")";
         } else {
           console.log("next is fajr");
           var countDownDate = xCountDownDate;
-          var nextP = "Sahour ends";
+          var nextP = "Sahour ends" + " (" + prayerName(prayerTimes.nextPrayer()) + ")";
         }
       } else {
         console.log("else...");
