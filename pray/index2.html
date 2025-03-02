@@ -8,8 +8,6 @@ TODO: localize
 
 TODO: Dynamic calculation method based on region
 
-TODO:Show next prayer as long as iftar and sahoor
-
 TODO:
 
 TODO:
@@ -481,6 +479,7 @@ TODO:
       nextDate.setDate(nextDate.getDate() + 1);
 
       var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log("TZ = " + tz);
 
       var params = getCalculationParams(CalculationMethod, tz);
 
@@ -594,17 +593,30 @@ TODO:
       $("#qibla").html(Math.round(adhan.Qibla(coordinates) * 100) / 100 + "&deg;");
       $("#latLong").html('<a href="https://www.google.com/maps/@' + lat + ',' + long + ',20z" target="_blank">' + lat + ', ' + long + '</a>');
 
+      var ramadan_countDownDate = null;
       if (fasting == 1 || (!fasting && higriMonth == "Ramadan")) {
         console.log(higriMonth);
         console.log(prayerTimes.nextPrayer());
         if (prayerTimes.nextPrayer() == 'sunrise' || prayerTimes.nextPrayer() == 'dhuhr' || prayerTimes.nextPrayer() == 'asr' || prayerTimes.nextPrayer() == 'maghrib') {
           console.log("next is maghrib");
-          var countDownDate = moment(prayerTimes.maghrib);
-          var nextP = "Iftar" + " (" + prayerName(prayerTimes.nextPrayer()) + ")";
+          if (prayerTimes.nextPrayer() == 'maghrib') {
+            var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+            var nextP = "Iftar/Maghrib";
+          } else {
+            var ramadan_countDownDate = moment(prayerTimes.maghrib);
+            var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+            var nextP = prayerName(prayerTimes.nextPrayer()) + " in<br>" + "Iftar";
+          }
         } else {
           console.log("next is fajr");
-          var countDownDate = xCountDownDate;
-          var nextP = "Sahour ends" + " (" + prayerName(prayerTimes.nextPrayer()) + ")";
+          // ???
+          if (prayerTimes.nextPrayer() == 'fajr') {
+            var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));;
+            var nextP = "Sahour ends/Fajr";
+          } else {
+            var countDownDate = xCountDownDate;
+            var nextP = "Sahour ends" + " (" + prayerName(prayerTimes.nextPrayer()) + ")";
+          }
         }
       } else {
         console.log("else...");
@@ -616,7 +628,7 @@ TODO:
         var countDownDate = xxCountDownDate;
         var nextP = "Fajr";
       }
-      console.log("countDownDate = " + countDownDate);
+      // console.log("countDownDate = " + countDownDate);
 
       var x = setInterval(function () {
         if (useDate) {
@@ -625,6 +637,20 @@ TODO:
           var now = new Date().getTime();
         }
         var distance = countDownDate - now;
+        var ramadan_countDownText = null;
+        if (ramadan_countDownDate) {
+          var ramadan_distance = ramadan_countDownDate - now;
+          var ramadan_hours = Math.floor((ramadan_distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          var ramadan_minutes = Math.floor((ramadan_distance % (1000 * 60 * 60)) / (1000 * 60));
+          var ramadan_seconds = Math.floor((ramadan_distance % (1000 * 60)) / 1000);
+          var ramadan_countDownText = "";
+          if (ramadan_hours == 0) {
+            ramadan_countDownText = pad(ramadan_minutes) + "m " + pad(ramadan_seconds) + "s ";
+          } else {
+            ramadan_countDownText = ramadan_hours + "h " + pad(ramadan_minutes) + "m " + pad(ramadan_seconds) + "s ";
+          }
+        }
+        
 
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -656,7 +682,11 @@ TODO:
         }
 
         $("#countDownTo").html(nextP + " in");
-        $("#countDownTimer").html(countDownText);
+        if (ramadan_countDownText) {
+          $("#countDownTimer").html(countDownText + "<br>" + ramadan_countDownText);
+        } else {
+          $("#countDownTimer").html(countDownText);
+        }
 
         if (distance < 0) {
           clearInterval(x);
@@ -710,8 +740,6 @@ TODO:
           return adhan.CalculationMethod.Egyptian();
         } else if (tz.includes("Karachi")) {
           return adhan.CalculationMethod.Karachi();
-        } else if (tz.includes("Riyadh")) {
-          return adhan.CalculationMethod.UmmAlQura();
         } else if (tz.includes("Qatar")) {
           return adhan.CalculationMethod.Qatar();
         } else if (tz.includes("Singapore")) {
@@ -720,6 +748,10 @@ TODO:
           return adhan.CalculationMethod.Tehran();
         } else if (tz.includes("Istanbul")) {
           return adhan.CalculationMethod.Turkey();
+        } else if ( tz.includes("Damascus")
+                || tz.includes("Amman")
+                || tz.includes("Riyadh") ) {
+          return adhan.CalculationMethod.UmmAlQura();
         } else {
           return adhan.CalculationMethod.Other();
         }
@@ -783,10 +815,3 @@ TODO:
 </body>
 
 </html>
-
-
-
-
-
-
-
