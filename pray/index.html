@@ -609,13 +609,14 @@ TODO:
           }
         } else {
           console.log("next is fajr");
-          // ???
+          // console.log(prayerTimes.nextPrayer());
           if (prayerTimes.nextPrayer() == 'fajr') {
             var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));;
             var nextP = "Sahour ends/Fajr";
           } else {
-            var countDownDate = xCountDownDate;
-            var nextP = "Sahour ends" + " (" + prayerName(prayerTimes.nextPrayer()) + ")";
+            var ramadan_countDownDate = xCountDownDate;
+            var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));;
+            var nextP = prayerName(prayerTimes.nextPrayer()) + " in<br>" + "Sahour ends";
           }
         }
       } else {
