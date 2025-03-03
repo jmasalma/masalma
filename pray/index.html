@@ -1,19 +1,19 @@
 <!--
 
-TODO: test for before and after midnight
+TODO: ? try to find city name?
 
-TODO: try to find city name?
+TODO: ? localize
 
-TODO: localize
+TODO: ? Dynamic calculation method based on region
 
-TODO: Dynamic calculation method based on region
+TODO: Fix clock time
 
-TODO:
+TODO: Fix full screen
 
-TODO:
+TODO: Fix backgroundStyle so only next prayer has gradiant when 30 minutes before detected...
+      Might have to add 2 divs for countdown...
 
-TODO:
-
+ToDo: Fix notification text for iftar/sahoor...
 
 
 
@@ -609,11 +609,17 @@ TODO:
           }
         } else {
           console.log("next is fajr");
-          // console.log(prayerTimes.nextPrayer());
-          if (prayerTimes.nextPrayer() == 'fajr') {
-            var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));;
+          console.log(prayerTimes.nextPrayer());
+          console.log(prayerName(prayerTimes.nextPrayer()));
+          // if (prayerTimes.nextPrayer() == 'fajr') {
+          if (prayerName(prayerTimes.nextPrayer()) != "Isha") {
+            console.log("Next not fajr");
+            // var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));
+            var countDownDate = xxCountDownDate;
             var nextP = "Sahour ends/Fajr";
           } else {
+            console.log("next is not fajr");
+            console.log(prayerName(prayerTimes.nextPrayer()));
             var ramadan_countDownDate = xCountDownDate;
             var countDownDate = moment(prayerTimes.timeForPrayer(prayerTimes.nextPrayer()));;
             var nextP = prayerName(prayerTimes.nextPrayer()) + " in<br>" + "Sahour ends";
