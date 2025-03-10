@@ -700,6 +700,20 @@ ToDo: Fix notification text for iftar/sahoor...
           notifyMe("Prayer time", nextP + " is now...");
           $('body').css('background-color', 'lightgreen');
           $("#countDownTimer").html("Done");
+
+          // console.log("1 - dLatitude = " + dLatitude);
+          if( typeof dLatitude === 'undefined' || dLatitude === null ){
+            // console.log("2 - dLatitude = " + dLatitude);
+            var dLatitude = getUrlParameter('latitude');
+            // console.log("3 - dLatitude = " + dLatitude);
+          }
+          // console.log("1 - dLongitude = " + dLongitude);
+          if( typeof dLongitude === 'undefined' || dLongitude === null ){
+            // console.log("2 - dLongitude = " + dLongitude);
+            var dLongitude = getUrlParameter('longitude');
+            // console.log("3 - dLongitude = " + dLongitude);
+          }
+              
           setTimeout(useLocation(dLatitude, dLongitude), 60000);
           $('body').css('background-color', 'lightgreen');
           setTimeout(function () {
