@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staggered Flooring Layout Generator</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for overall layout and plank appearance */
+        body {
+            font-family: "Inter", sans-serif; /* Recommended font */
+            background-color: #f0f2f5; /* Light grey background */
+            color: #333; /* Dark grey text */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to the top */
+            min-height: 100vh; /* Full viewport height */
+            padding: 20px;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+        .container {
+            display: flex;
+            flex-direction: column; /* Stack sections vertically on small screens */
+            gap: 20px; /* Space between sections */
+            background-color: #fff; /* White background for the app container */
+            padding: 30px;
+            border-radius: 12px; /* Rounded corners for the container */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            max-width: 1200px; /* Max width for larger screens */
+            width: 100%; /* Full width on smaller screens */
+        }
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Space between input groups/output elements */
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600; /* Semi-bold labels */
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="number"] {
+            padding: 10px 12px;
+            border: 1px solid #ccc; /* Light grey border */
+            border-radius: 8px; /* Rounded input fields */
+            font-size: 1rem;
+            transition: border-color 0.2s; /* Smooth transition on focus */
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Blue shadow on focus */
+        }
+        button {
+            background-color: #3b82f6; /* Blue button */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s; /* Smooth transitions for hover/active */
+        }
+        button:hover {
+            background-color: #2563eb; /* Darker blue on hover */
+            transform: translateY(-1px); /* Slight lift on hover */
+        }
+        button:active {
+            transform: translateY(0); /* Reset on click */
+        }
+        .flooring-layout-container {
+            border: 2px solid #a0a0a0; /* Border around the entire floor layout */
+            background-color: #e0e0e0; /* Light grey background for the floor area */
+            overflow-x: auto; /* Allow horizontal scrolling if layout exceeds container width */
+            padding: 5px;
+            border-radius: 8px;
+            min-height: 200px; /* Minimum height for visibility */
+            display: flex;
+            flex-direction: column; /* Stack rows vertically */
+            gap: 2px; /* Gap between rows */
+        }
+        .floor-row {
+            display: flex; /* Use flexbox for planks within a row */
+            flex-shrink: 0; /* Prevent rows from shrinking */
+            gap: 2px; /* Gap between individual planks */
+            height: var(--plank-height); /* Custom CSS property set by JS for plank height */
+        }
+        .plank {
+            background-color: #deb887; /* Wood-like color */
+            border: 1px solid #8b4513; /* Darker wood border */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            border-radius: 4px; /* Slightly rounded corners for planks */
+            flex-shrink: 0; /* Prevent planks from shrinking */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem; /* Smaller font for plank length text */
+            color: #4a2c00; /* Dark brown text */
+            font-weight: 500;
+            overflow: hidden; /* Hide text if plank is too small */
+            white-space: nowrap; /* Prevent text from wrapping */
+        }
+        .css-output {
+            background-color: #f8f8f8; /* Light background for code output */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; /* Monospace font for code */
+            font-size: 0.9rem;
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+            word-break: break-all; /* Break long words */
+            max-height: 300px; /* Max height with scroll for long output */
+            overflow-y: auto;
+        }
+        .waste-output {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #dc2626; /* Red color for waste text */
+        }
+
+        /* Custom message box for alerts */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000; /* Ensure it's on top */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            text-align: center;
+        }
+        .message-box p {
+            margin: 0;
+            font-size: 1rem;
+            color: #333;
+        }
+        .message-box button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive adjustments for larger screens */
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row; /* Arrange sections side-by-side on larger screens */
+                gap: 30px;
+            }
+            .input-section {
+                flex: 1; /* Take up 1 part of available space */
+                max-width: 350px; /* Max width for input section */
+            }
+            .output-section {
+                flex: 2; /* Take up 2 parts of available space */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Input Section -->
+        <div class="input-section">
+            <h2 class="text-2xl font-bold mb-4 text-center">Flooring Layout Generator</h2>
+            <div class="input-group">
+                <label for="roomDim1">Room Dimension 1 (units):</label>
+                <input type="number" id="roomDim1" value="500" min="1" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="roomDim2">Room Dimension 2 (units):</label>
+                <input type="number" id="roomDim2" value="300" min="1" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="plankWidth">Plank Width (units):</label>
+                <input type="number" id="plankWidth" value="10" min="0.1" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="plankLength">Plank Length (units):</label>
+                <input type="number" id="plankLength" value="120" min="1" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="minOverlap">Min Overlap Between Joints (units):</label>
+                <input type="number" id="minOverlap" value="20" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="minPlankCutSize">Min Plank Cut Size (units):</label>
+                <input type="number" id="minPlankCutSize" value="15" min="0" step="0.1">
+            </div>
+            <button id="generateLayout">Generate Layout</button>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-section">
+            <h2 class="text-2xl font-bold mb-4 text-center">Generated Layout</h2>
+            <div class="flooring-layout-container" id="flooringLayoutContainer">
+                <!-- Flooring planks will be dynamically rendered here by JavaScript -->
+            </div>
+            <div class="waste-output">
+                <p>Total Waste: <span id="totalWaste">0</span> units</p>
+            </div>
+            <h3 class="text-xl font-bold mt-4 mb-2">Layout Details (Plank Lengths)</h3>
+            <div class="css-output">
+                <pre><code id="cssCodeOutput"></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Message Box (instead of alert()) -->
+    <div id="messageBox" class="message-box">
+        <p id="messageBoxText"></p>
+        <button onclick="document.getElementById('messageBox').style.display='none'">OK</button>
+    </div>
+
+    <script>
+        // Global variables for Firebase config and app ID (provided by the Canvas environment)
+        // These are placeholders and will be populated by the runtime environment.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        /**
+         * Displays a custom message box to the user.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            const messageBox = document.getElementById('messageBox');
+            const messageBoxText = document.getElementById('messageBoxText');
+            messageBoxText.textContent = message;
+            messageBox.style.display = 'flex'; // Show the message box
+        }
+
+        // Add event listener to the "Generate Layout" button
+        document.getElementById('generateLayout').addEventListener('click', generateFlooringLayout);
+
+        /**
+         * Generates and displays the staggered flooring layout based on user inputs.
+         */
+        function generateFlooringLayout() {
+            // Retrieve input values from the HTML elements
+            const roomDim1 = parseFloat(document.getElementById('roomDim1').value);
+            const roomDim2 = parseFloat(document.getElementById('roomDim2').value);
+            const plankWidth = parseFloat(document.getElementById('plankWidth').value);
+            const plankLength = parseFloat(document.getElementById('plankLength').value);
+            const minOverlap = parseFloat(document.getElementById('minOverlap').value);
+            const minPlankCutSize = parseFloat(document.getElementById('minPlankCutSize').value);
+
+            // --- Input Validation ---
+            if (isNaN(roomDim1) || isNaN(roomDim2) || isNaN(plankWidth) || isNaN(plankLength) || isNaN(minOverlap) || isNaN(minPlankCutSize)) {
+                showMessageBox('Please enter valid numbers for all dimensions.');
+                return;
+            }
+            if (roomDim1 <= 0 || roomDim2 <= 0 || plankWidth <= 0 || plankLength <= 0) {
+                showMessageBox('Room dimensions, plank width, and plank length must be positive.');
+                return;
+            }
+            if (minOverlap < 0 || minPlankCutSize < 0) {
+                showMessageBox('Minimum overlap and minimum plank cut size cannot be negative.');
+                return;
+            }
+            if (plankLength < minOverlap) {
+                showMessageBox('Plank length must be greater than or equal to minimum overlap.');
+                return;
+            }
+            if (plankLength < minPlankCutSize) {
+                showMessageBox('Plank length must be greater than or equal to minimum plank cut size.');
+                return;
+            }
+            if (minOverlap < minPlankCutSize) {
+                 showMessageBox('Warning: Minimum overlap is less than minimum plank cut size. This might lead to very small first pieces if not careful. Consider making min overlap at least min plank cut size.');
+            }
+
+
+            // For layout purposes, we'll assume roomDim1 is the width (along which planks are laid)
+            // and roomDim2 is the height (determining the number of rows).
+            const roomWidth = roomDim1;
+            const roomHeight = roomDim2;
+
+            // Define a scaling factor to convert input units to pixels for visual rendering.
+            // This makes the layout visible and manageable on screen.
+            const unitScale = 10; // 1 input unit = 10 pixels
+
+            // Get references to output containers
+            const flooringLayoutContainer = document.getElementById('flooringLayoutContainer');
+            flooringLayoutContainer.innerHTML = ''; // Clear any previously generated layout
+            // Set the visual width of the flooring area based on the room width
+            flooringLayoutContainer.style.width = `${roomWidth * unitScale}px`;
+
+            const cssCodeOutput = document.getElementById('cssCodeOutput');
+            cssCodeOutput.textContent = ''; // Clear previous layout details
+
+            // Initialize variables for layout generation
+            let totalWaste = 0; // Tracks the total amount of wasted material
+            let carryOverPieceFromPreviousRowEnd = 0; // Stores the length of the cut piece from the end of the previous row
+            let prevFirstPlankLength = -1; // Stores the first plank length of the previous row for stagger calculation
+
+            // Calculate the total number of rows needed based on room height and plank width
+            const numRows = Math.ceil(roomHeight / plankWidth);
+            const layoutDetails = []; // Array to store string descriptions of each row's plank lengths
+
+            // Set a CSS custom property for the height of each plank row.
+            // This ensures all rows have the correct visual height based on plank width.
+            flooringLayoutContainer.style.setProperty('--plank-height', `${plankWidth * unitScale}px`);
+
+            // --- Main Layout Generation Loop (Iterate through each row) ---
+            for (let i = 0; i < numRows; i++) {
+                const currentRowPlanks = []; // Stores the lengths of planks in the current row (in original units)
+                let currentRoomCoverage = 0; // Tracks how much of the room width has been covered in the current row
+
+                // Create a div element for the current row
+                const rowElement = document.createElement('div');
+                rowElement.classList.add('floor-row');
+                // Ensure the row visually spans the full room width
+                rowElement.style.width = `${roomWidth * unitScale}px`;
+
+                let firstPlankLength;
+                let validStaggerFound = false;
+                let attempts = 0;
+                const MAX_ATTEMPTS = 500; // Max attempts to find a valid starting plank length that meets stagger rules
+
+                // --- Handle carry-over piece from previous row ---
+                // If the carry-over piece is too small to be a valid cut size, it's considered waste.
+                if (carryOverPieceFromPreviousRowEnd > 0 && carryOverPieceFromPreviousRowEnd < minPlankCutSize) {
+                    totalWaste += carryOverPieceFromPreviousRowEnd;
+                    carryOverPieceFromPreviousRowEnd = 0; // Reset as it's unusable
+                }
+
+                // Determine if the carry-over piece from the previous row is a viable candidate for the first plank
+                let useCarryOverCandidate = false;
+                if (carryOverPieceFromPreviousRowEnd >= minPlankCutSize && carryOverPieceFromPreviousRowEnd < plankLength) {
+                    useCarryOverCandidate = true;
+                }
+
+                // Loop to find a suitable first plank length that satisfies stagger and min cut size requirements
+                while (!validStaggerFound && attempts < MAX_ATTEMPTS) {
+                    attempts++;
+
+                    let candidateFirstPlankLength;
+                    let sourceIsCarryOver = false; // Flag to track if candidate came from carryOverPiece
+
+                    // Prioritize using the carry-over piece if available and it's a good candidate,
+                    // or try it with a higher probability on subsequent attempts.
+                    if (useCarryOverCandidate && (attempts === 1 || Math.random() < 0.7)) {
+                        candidateFirstPlankLength = carryOverPieceFromPreviousRowEnd;
+                        sourceIsCarryOver = true;
+                    } else {
+                        // Generate a new random length for the first plank from a fresh board
+                        if (roomWidth <= plankLength) {
+                            // If room is narrower than a plank, the first (and only) plank is room width
+                            candidateFirstPlankLength = roomWidth;
+                        } else {
+                            // Ensure the first plank is at least `minOverlap` AND `minPlankCutSize`
+                            const lowerBound = Math.max(minOverlap, minPlankCutSize);
+                            // Ensure the first plank is less than `plankLength` to create a cut and thus a stagger.
+                            const upperBound = plankLength - 0.1;
+
+                            if (upperBound <= lowerBound) {
+                                // This scenario happens if plankLength is very small relative to lowerBound.
+                                // Fallback: try to make it at least `lowerBound`, ensuring it's not full length.
+                                candidateFirstPlankLength = lowerBound;
+                                if (candidateFirstPlankLength >= plankLength) candidateFirstPlankLength = plankLength * 0.5; // Fallback if still too long
+                            } else {
+                                candidateFirstPlankLength = Math.random() * (upperBound - lowerBound) + lowerBound;
+                            }
+                        }
+                    }
+
+                    // Round to a reasonable precision to avoid floating point issues in comparisons
+                    candidateFirstPlankLength = parseFloat(candidateFirstPlankLength.toFixed(2));
+
+                    // Stagger validation: only apply for rows after the first one
+                    if (i === 0) {
+                        validStaggerFound = true;
+                        firstPlankLength = candidateFirstPlankLength;
+                    } else {
+                        const diff = Math.abs(candidateFirstPlankLength - prevFirstPlankLength);
+                        // The stagger condition: the difference between starting points of adjacent rows
+                        // must be at least `minOverlap` AND the complement (plankLength - diff) must also be `>= minOverlap`.
+                        // This ensures joints are well-separated.
+                        if (diff >= minOverlap && (plankLength - diff) >= minOverlap) {
+                            validStaggerFound = true;
+                            firstPlankLength = candidateFirstPlankLength;
+                        }
+                    }
+
+                    // If a valid stagger was found using the carry-over piece, we can use it and exit the loop.
+                    if (validStaggerFound && sourceIsCarryOver) {
+                        break;
+                    }
+                }
+
+                // Fallback if a valid stagger couldn't be found after many attempts.
+                // This might occur with very restrictive minOverlap or plankLength values.
+                if (!validStaggerFound) {
+                    showMessageBox(`Warning: Could not find an ideal stagger for row ${i + 1} after ${MAX_ATTEMPTS} attempts. Using a best-effort length. Consider adjusting min overlap or plank length.`);
+                    // As a fallback, if a carry-over candidate was available and valid, use it. Otherwise, use a simple random cut.
+                    if (useCarryOverCandidate && carryOverPieceFromPreviousRowEnd >= minPlankCutSize) {
+                        firstPlankLength = carryOverPieceFromPreviousRowEnd;
+                    } else {
+                        // Ensure fallback also respects minPlankCutSize
+                        firstPlankLength = Math.random() * (plankLength - Math.max(minOverlap, minPlankCutSize) - 0.1) + Math.max(minOverlap, minPlankCutSize);
+                        if (firstPlankLength < Math.max(minOverlap, minPlankCutSize)) firstPlankLength = Math.max(minOverlap, minPlankCutSize);
+                        if (firstPlankLength >= plankLength) firstPlankLength = plankLength * 0.5;
+                    }
+                    firstPlankLength = parseFloat(firstPlankLength.toFixed(2));
+                }
+
+                // Update total waste based on how `firstPlankLength` was obtained.
+                // If the carry-over piece from the previous row was successfully used, it's consumed.
+                // Otherwise, a new plank was cut, and the remainder is added to waste.
+                if (firstPlankLength === carryOverPieceFromPreviousRowEnd && useCarryOverCandidate) {
+                    carryOverPieceFromPreviousRowEnd = 0; // The carry-over piece has been consumed
+                } else {
+                    totalWaste += (plankLength - firstPlankLength); // A new plank was cut, add its waste
+                }
+
+                currentRowPlanks.push(firstPlankLength);
+                currentRoomCoverage += firstPlankLength;
+
+                // Create and append the HTML element for the first plank
+                const firstPlankElement = document.createElement('div');
+                firstPlankElement.classList.add('plank');
+                firstPlankElement.style.width = `${firstPlankLength * unitScale}px`; // Set visual width
+                firstPlankElement.textContent = firstPlankLength.toFixed(1); // Display length
+                rowElement.appendChild(firstPlankElement);
+
+                // --- Fill the rest of the row with planks ---
+                while (currentRoomCoverage < roomWidth) {
+                    const remainingWidthInRow = roomWidth - currentRoomCoverage;
+
+                    if (remainingWidthInRow >= plankLength) {
+                        // If a full plank fits, add it
+                        currentRowPlanks.push(plankLength);
+                        currentRoomCoverage += plankLength;
+
+                        const plankElement = document.createElement('div');
+                        plankElement.classList.add('plank');
+                        plankElement.style.width = `${plankLength * unitScale}px`;
+                        plankElement.textContent = plankLength.toFixed(1);
+                        rowElement.appendChild(plankElement);
+
+                    } else {
+                        // If only a partial plank fits, cut it
+                        const cutLength = remainingWidthInRow;
+
+                        if (cutLength < minPlankCutSize) {
+                            // If the remaining space is too small for a valid plank, it's waste.
+                            totalWaste += cutLength;
+                            carryOverPieceFromPreviousRowEnd = 0; // No usable carry-over from this tiny piece
+                            break; // Row is considered complete, no more planks can be added
+                        } else {
+                            // If the remaining space is large enough for a valid cut
+                            currentRowPlanks.push(cutLength);
+                            currentRoomCoverage += cutLength;
+                            carryOverPieceFromPreviousRowEnd = plankLength - cutLength; // This is the piece cut from a full plank
+
+                            const plankElement = document.createElement('div');
+                            plankElement.classList.add('plank');
+                            plankElement.style.width = `${cutLength * unitScale}px`;
+                            plankElement.textContent = cutLength.toFixed(1);
+                            rowElement.appendChild(plankElement);
+                            break; // The row is now complete
+                        }
+                    }
+                }
+                // Add the completed row to the flooring layout container
+                flooringLayoutContainer.appendChild(rowElement);
+                // Store the details of the current row for the text output
+                layoutDetails.push(`Row ${i + 1}: ${currentRowPlanks.map(l => l.toFixed(1)).join(', ')} units`);
+
+                // Update prevFirstPlankLength for the next iteration (to be used in the stagger check)
+                prevFirstPlankLength = firstPlankLength;
+            }
+
+            // --- Final Waste Calculation ---
+            // Any remaining carry-over piece after all rows are laid is considered waste.
+            if (carryOverPieceFromPreviousRowEnd > 0) {
+                totalWaste += carryOverPieceFromPreviousRowEnd;
+            }
+
+            // Update the display with the total calculated waste
+            document.getElementById('totalWaste').textContent = totalWaste.toFixed(2);
+            // Display the detailed plank lengths for each row
+            cssCodeOutput.textContent = layoutDetails.join('\n');
+        }
+
+        // --- Initial Layout Generation on Page Load ---
+        // This ensures a layout is displayed as soon as the page loads with default values.
+        document.addEventListener('DOMContentLoaded', generateFlooringLayout);
+    </script>
+</body>
+</html>
