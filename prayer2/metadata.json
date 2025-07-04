@@ -1,0 +1,7 @@
+{
+  "name": "Nur: The Islamic Prayer Companion",
+  "description": "An elegant and modern web application to help Muslims track daily prayer times, find the Qibla direction, and deepen their spiritual connection through the Quran and the 99 Names of Allah.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
