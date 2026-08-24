@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Online Alarm Clock & Digital Clock - Masalma</title>
-  <meta name="keywords" content="Alarm Clock, Digital Clock, Timer, Stopwatch, vClock, Masalma" />
-  <meta name="description" content="Free online alarm clock, digital clock, timer, and stopwatch." />
+  <title>Online Alarm Clock & World Clock - Masalma</title>
+  <meta name="keywords" content="Alarm Clock, Digital Clock, World Clock, Timer, Stopwatch, Masalma" />
+  <meta name="description" content="Free online alarm clock, digital clock, world clock, timer, and stopwatch." />
   <link rel="icon" type="image/x-icon" href="../../favicon.ico">
 
   <!-- Bootstrap CSS & Icons -->
@@ -29,10 +29,13 @@
       <span class="badge bg-secondary font-monospace" id="headerMiniClock">--:--:--</span>
     </div>
 
-    <!-- Navigation Tabs (Alarm Clock, Timer, Stopwatch, Clock) -->
+    <!-- Navigation Tabs -->
     <nav class="d-flex align-items-center gap-1 flex-wrap">
       <a href="#alarm" class="clock-nav-link active" data-tab="alarm">
         <i class="bi bi-alarm"></i> Alarm Clock
+      </a>
+      <a href="#world" class="clock-nav-link" data-tab="world">
+        <i class="bi bi-globe"></i> World Clock
       </a>
       <a href="#timer" class="clock-nav-link" data-tab="timer">
         <i class="bi bi-hourglass-split"></i> Timer
@@ -68,13 +71,13 @@
     <div id="tab-alarm" class="tab-pane-content">
       <div class="text-center my-4">
         <h1 class="fw-bold">Online Alarm Clock</h1>
-        <p class="text-muted">Set alarms with customizeable sounds, night mode, and digital LED display.</p>
+        <p class="text-muted">Set alarms with customizable sounds, night mode, and digital LED display.</p>
         <div class="d-flex justify-content-center gap-2 mt-3">
           <button class="btn btn-primary btn-lg rounded-pill px-4" id="openAddAlarmBtn">
             <i class="bi bi-plus-lg me-1"></i> Set Alarm
           </button>
           <button class="btn btn-outline-secondary btn-lg rounded-pill px-4 test-sound-btn">
-            <i class="bi bi-volume-up me-1"></i> Test
+            <i class="bi bi-volume-up me-1"></i> Test Sound
           </button>
         </div>
       </div>
@@ -89,7 +92,7 @@
       <!-- Quick Preset Alarms -->
       <div class="row justify-content-center mt-5">
         <div class="col-lg-8">
-          <div class="vclock-card">
+          <div class="clock-card">
             <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-warning me-2"></i>Quick Set Alarm</h5>
             <div class="preset-grid" id="alarmPresetsGrid">
               <!-- Dynamically populated -->
@@ -97,23 +100,37 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- How to use -->
-      <div class="row justify-content-center mt-4">
-        <div class="col-lg-8">
-          <div class="vclock-card bg-transparent border-0 opacity-75">
-            <h6>How to use the online alarm clock</h6>
-            <small class="text-muted">
-              Set the hour and minute for the online alarm clock. The alarm sound will play at the set time.
-              Click the "Test" button to preview the alert sound. You can toggle 12/24 hour format, night mode,
-              and custom colors in Settings.
-            </small>
+    <!-- TAB 2: WORLD CLOCK -->
+    <div id="tab-world" class="tab-pane-content d-none">
+      <div class="text-center my-4">
+        <h1 class="fw-bold">World Clock & World Times</h1>
+        <p class="text-muted">Current local time and date in cities around the globe.</p>
+        <button class="btn btn-primary btn-lg rounded-pill px-4 mt-2" data-bs-toggle="modal" data-bs-target="#addCityModal">
+          <i class="bi bi-geo-alt-fill me-1"></i> Add City / Timezone
+        </button>
+      </div>
+
+      <!-- World Clock Tiles Grid -->
+      <div class="row g-4 mt-2" id="worldClockTilesGrid">
+        <!-- Dynamically populated -->
+      </div>
+
+      <!-- Popular World Cities Quick Add -->
+      <div class="row justify-content-center mt-5">
+        <div class="col-lg-12">
+          <div class="clock-card">
+            <h5 class="fw-bold mb-3"><i class="bi bi-globe-americas text-primary me-2"></i>Popular Cities & Time Zones</h5>
+            <div class="preset-grid" id="popularCitiesGrid">
+              <!-- Dynamically populated -->
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TAB 2: TIMER -->
+    <!-- TAB 3: TIMER -->
     <div id="tab-timer" class="tab-pane-content d-none">
       <div class="text-center my-4">
         <h1 class="fw-bold" id="timerTitleDisplay">Online Timer</h1>
@@ -137,7 +154,7 @@
 
         <div class="row justify-content-center mt-4">
           <div class="col-md-6">
-            <input type="text" class="form-control text-center" id="timerTitleInput" placeholder="Timer Name / Title (e.g. Eggs, Exercise)" value="Timer">
+            <input type="text" class="form-control text-center" id="timerTitleInput" placeholder="Timer Title" value="Timer">
           </div>
         </div>
       </div>
@@ -145,7 +162,7 @@
       <!-- Timer Presets -->
       <div class="row justify-content-center mt-5">
         <div class="col-lg-8">
-          <div class="vclock-card">
+          <div class="clock-card">
             <h5 class="fw-bold mb-3"><i class="bi bi-hourglass text-primary me-2"></i>Timer Presets</h5>
             <div class="preset-grid">
               <button class="preset-btn quick-timer-preset" data-sec="60" data-title="1 Minute Timer">1 Min</button>
@@ -163,7 +180,7 @@
       </div>
     </div>
 
-    <!-- TAB 3: STOPWATCH -->
+    <!-- TAB 4: STOPWATCH -->
     <div id="tab-stopwatch" class="tab-pane-content d-none">
       <div class="text-center my-4">
         <h1 class="fw-bold">Online Stopwatch</h1>
@@ -186,10 +203,10 @@
         </div>
       </div>
 
-      <!-- Lap Times Table -->
+      <!-- Lap History -->
       <div class="row justify-content-center mt-4">
         <div class="col-lg-6">
-          <div class="vclock-card">
+          <div class="clock-card">
             <h5 class="fw-bold mb-3"><i class="bi bi-list-ol text-primary me-2"></i>Lap History</h5>
             <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
               <table class="table laps-table table-hover align-middle mb-0">
@@ -209,7 +226,7 @@
       </div>
     </div>
 
-    <!-- TAB 4: DIGITAL CLOCK -->
+    <!-- TAB 5: DIGITAL CLOCK -->
     <div id="tab-clock" class="tab-pane-content d-none">
       <div class="text-center my-5 py-4">
         <div class="digital-clock-display mb-2" id="mainClockDisplay">12:00:00 AM</div>
@@ -224,6 +241,34 @@
     </div>
 
   </main>
+
+  <!-- Add City Modal -->
+  <div class="modal fade" id="addCityModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="bi bi-geo-alt me-2"></i>Add City / Timezone</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">City Name</label>
+            <input type="text" class="form-control" id="addCityNameInput" placeholder="e.g. London, Tokyo, Cairo">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Select Timezone</label>
+            <select class="form-select" id="addCityTimezoneSelect">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveCityModalBtn">Add City</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Edit / Set Alarm Modal -->
   <div class="modal fade" id="editAlarmModal" tabindex="-1" aria-hidden="true">
@@ -380,7 +425,7 @@
   <!-- Footer -->
   <footer class="clock-footer text-center">
     <div class="container">
-      <small>© Masalma Tools - Online Alarm Clock & Digital Clock</small>
+      <small>© Masalma Tools - Online Alarm Clock, World Clock & Digital Clock</small>
     </div>
   </footer>
 

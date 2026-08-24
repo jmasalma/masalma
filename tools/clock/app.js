@@ -1,4 +1,4 @@
-/* vClock App JS - masalma tools/clock */
+/* Masalma Clock App JS */
 (function () {
   'use strict';
 
@@ -60,7 +60,6 @@
         break;
       case 'digital':
       default:
-        // Classic alarm beep pattern
         playTone(1000, 'square', 0.15, 0);
         playTone(1000, 'square', 0.15, 0.2);
         playTone(1000, 'square', 0.15, 0.4);
@@ -83,7 +82,30 @@
     }
   }
 
-  // --- App State & Options ---
+  // --- Common IANA Timezones list ---
+  const popularTimezones = [
+    { name: 'New York, USA', tz: 'America/New_York' },
+    { name: 'Los Angeles, USA', tz: 'America/Los_Angeles' },
+    { name: 'Chicago, USA', tz: 'America/Chicago' },
+    { name: 'London, UK', tz: 'Europe/London' },
+    { name: 'Paris, France', tz: 'Europe/Paris' },
+    { name: 'Berlin, Germany', tz: 'Europe/Berlin' },
+    { name: 'Cairo, Egypt', tz: 'Africa/Cairo' },
+    { name: 'Jerusalem, Palestine', tz: 'Asia/Jerusalem' },
+    { name: 'Riyadh, Saudi Arabia', tz: 'Asia/Riyadh' },
+    { name: 'Dubai, UAE', tz: 'Asia/Dubai' },
+    { name: 'Tokyo, Japan', tz: 'Asia/Tokyo' },
+    { name: 'Seoul, South Korea', tz: 'Asia/Seoul' },
+    { name: 'Beijing, China', tz: 'Asia/Shanghai' },
+    { name: 'Singapore', tz: 'Asia/Singapore' },
+    { name: 'Sydney, Australia', tz: 'Australia/Sydney' },
+    { name: 'Auckland, New Zealand', tz: 'Pacific/Auckland' },
+    { name: 'Toronto, Canada', tz: 'America/Toronto' },
+    { name: 'São Paulo, Brazil', tz: 'America/Sao_Paulo' },
+    { name: 'Buenos Aires, Argentina', tz: 'America/Argentina/Buenos_Aires' },
+  ];
+
+  // --- App State ---
   const state = {
     activeTab: 'alarm',
     settings: {
@@ -91,9 +113,10 @@
       is12Hour: true,
       showDate: true,
       nightMode: false,
-      color: '#0d6efd', // Default primary blue
+      color: '#0d6efd',
     },
-    alarms: [], // [{ id, hours, minutes, enabled, title, sound, repeatSound }]
+    alarms: [],
+    worldCities: [],
     activeAlarmRinging: null,
 
     // Timer state
@@ -118,17 +141,28 @@
   // --- Load & Save Settings ---
   function loadSettings() {
     try {
-      const storedSettings = localStorage.getItem('vclock_settings');
+      const storedSettings = localStorage.getItem('masalma_clock_settings');
       if (storedSettings) {
         Object.assign(state.settings, JSON.parse(storedSettings));
       }
-      const storedAlarms = localStorage.getItem('vclock_alarms');
+      const storedAlarms = localStorage.getItem('masalma_clock_alarms');
       if (storedAlarms) {
         state.alarms = JSON.parse(storedAlarms);
       } else {
-        // Default alarm at 7:00 AM
         state.alarms = [
           { id: '1', hours: 7, minutes: 0, enabled: false, title: 'Alarm', sound: 'digital', repeatSound: true }
+        ];
+      }
+      const storedCities = localStorage.getItem('masalma_clock_world_cities');
+      if (storedCities) {
+        state.worldCities = JSON.parse(storedCities);
+      } else {
+        // Default popular world city tiles
+        state.worldCities = [
+          { id: '1', name: 'New York', tz: 'America/New_York' },
+          { id: '2', name: 'London', tz: 'Europe/London' },
+          { id: '3', name: 'Tokyo', tz: 'Asia/Tokyo' },
+          { id: '4', name: 'Dubai', tz: 'Asia/Dubai' }
         ];
       }
     } catch (e) {
@@ -138,33 +172,30 @@
 
   function saveSettings() {
     try {
-      localStorage.setItem('vclock_settings', JSON.stringify(state.settings));
-      localStorage.setItem('vclock_alarms', JSON.stringify(state.alarms));
+      localStorage.setItem('masalma_clock_settings', JSON.stringify(state.settings));
+      localStorage.setItem('masalma_clock_alarms', JSON.stringify(state.alarms));
+      localStorage.setItem('masalma_clock_world_cities', JSON.stringify(state.worldCities));
     } catch (e) {
       console.error('Failed to save settings to localStorage', e);
     }
   }
 
   function applySettingsUI() {
-    // Night Mode
     if (state.settings.nightMode) {
       document.body.classList.add('night-mode');
     } else {
       document.body.classList.remove('night-mode');
     }
 
-    // Digital Font
     if (state.settings.digitalFont) {
       document.body.classList.add('digital-font-active');
     } else {
       document.body.classList.remove('digital-font-active');
     }
 
-    // Color Accent
     document.documentElement.style.setProperty('--clock-color', state.settings.color);
     document.documentElement.style.setProperty('--accent-color', state.settings.color);
 
-    // Form controls in Settings modal
     const fontCheck = document.getElementById('settingDigitalFont');
     if (fontCheck) fontCheck.checked = state.settings.digitalFont;
 
@@ -177,7 +208,6 @@
     const nightCheck = document.getElementById('settingNightMode');
     if (nightCheck) nightCheck.checked = state.settings.nightMode;
 
-    // Update active color dot in modal
     document.querySelectorAll('.color-dot').forEach(dot => {
       if (dot.getAttribute('data-color') === state.settings.color) {
         dot.classList.add('active');
@@ -208,6 +238,35 @@
     return timeStr;
   }
 
+  function formatTzTime(dateObj, timeZone, showSeconds = true) {
+    try {
+      const options = {
+        timeZone,
+        hour: 'numeric',
+        minute: '2-digit',
+        second: showSeconds ? '2-digit' : undefined,
+        hour12: state.settings.is12Hour
+      };
+      return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+    } catch (e) {
+      return formatTime(dateObj, showSeconds);
+    }
+  }
+
+  function formatTzDate(dateObj, timeZone) {
+    try {
+      const options = {
+        timeZone,
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      };
+      return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+    } catch (e) {
+      return formatDate(dateObj);
+    }
+  }
+
   function formatDate(dateObj) {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return dateObj.toLocaleDateString(undefined, options);
@@ -235,7 +294,6 @@
   function updateClockDisplays() {
     const now = new Date();
 
-    // Main Clock Tab Display
     const clockDisplay = document.getElementById('mainClockDisplay');
     const clockDate = document.getElementById('mainClockDate');
     if (clockDisplay) clockDisplay.innerHTML = formatTime(now);
@@ -244,11 +302,12 @@
       clockDate.textContent = formatDate(now);
     }
 
-    // Top Header Mini Time Display
     const headerTime = document.getElementById('headerMiniClock');
     if (headerTime) headerTime.textContent = formatTime(now, true);
 
-    // Alarm Check
+    // Update World Clock tiles real time
+    updateWorldClockTiles(now);
+
     const currentHour = now.getHours();
     const currentMin = now.getMinutes();
     const currentSec = now.getSeconds();
@@ -260,6 +319,16 @@
         }
       });
     }
+  }
+
+  function updateWorldClockTiles(nowObj) {
+    const now = nowObj || new Date();
+    state.worldCities.forEach(city => {
+      const elTime = document.getElementById(`tz-time-${city.id}`);
+      const elDate = document.getElementById(`tz-date-${city.id}`);
+      if (elTime) elTime.textContent = formatTzTime(now, city.tz, true);
+      if (elDate) elDate.textContent = formatTzDate(now, city.tz);
+    });
   }
 
   function triggerAlarm(alarm) {
@@ -296,7 +365,7 @@
     }
 
     container.innerHTML = state.alarms.map(alarm => `
-      <div class="vclock-card d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="clock-card d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
           <div class="h2 mb-0 fw-bold">${formatAlarmTimeStr(alarm.hours, alarm.minutes)}</div>
           <div class="text-muted small">${alarm.title || 'Alarm'} ${alarm.enabled ? '<span class="badge bg-success ms-2">Active</span>' : ''}</div>
@@ -343,6 +412,55 @@
     container.innerHTML = presets.map(p => `
       <button class="preset-btn quick-preset-alarm" data-h="${p.h}" data-m="${p.m}">${p.label}</button>
     `).join('');
+  }
+
+  // --- World Clock UI Render ---
+  function renderWorldClockTiles() {
+    const container = document.getElementById('worldClockTilesGrid');
+    if (!container) return;
+
+    if (state.worldCities.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center text-muted py-4">No cities added. Click "Add City / Timezone" or select popular cities below.</div>';
+      return;
+    }
+
+    const now = new Date();
+    container.innerHTML = state.worldCities.map(city => `
+      <div class="col-md-6 col-lg-3">
+        <div class="clock-card text-center position-relative h-100 d-flex flex-column justify-content-between">
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-city-btn" data-id="${city.id}" aria-label="Remove"></button>
+          <div>
+            <h4 class="fw-bold mb-1">${city.name}</h4>
+            <div class="text-muted small mb-3">${city.tz}</div>
+          </div>
+          <div>
+            <div class="display-6 font-monospace fw-bold text-primary mb-1" id="tz-time-${city.id}">${formatTzTime(now, city.tz, true)}</div>
+            <div class="text-muted small" id="tz-date-${city.id}">${formatTzDate(now, city.tz)}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderPopularCities() {
+    const container = document.getElementById('popularCitiesGrid');
+    if (!container) return;
+
+    container.innerHTML = popularTimezones.map(item => `
+      <button class="preset-btn add-popular-city-btn" data-name="${item.name}" data-tz="${item.tz}">${item.name}</button>
+    `).join('');
+  }
+
+  function populateTimezoneSelect() {
+    const select = document.getElementById('addCityTimezoneSelect');
+    if (!select) return;
+
+    try {
+      const supportedTzs = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : popularTimezones.map(t => t.tz);
+      select.innerHTML = supportedTzs.map(tz => `<option value="${tz}">${tz}</option>`).join('');
+    } catch (e) {
+      select.innerHTML = popularTimezones.map(t => `<option value="${t.tz}">${t.tz}</option>`).join('');
+    }
   }
 
   // --- Timer Logic ---
@@ -489,13 +607,11 @@
   function parseUrlParams() {
     const params = new URLSearchParams(window.location.search);
 
-    // Check for tab parameter e.g., ?tab=timer
     const tabParam = params.get('tab');
-    if (tabParam && ['alarm', 'timer', 'stopwatch', 'clock'].includes(tabParam)) {
+    if (tabParam && ['alarm', 'world', 'timer', 'stopwatch', 'clock'].includes(tabParam)) {
       switchTab(tabParam);
     }
 
-    // Check for alarm preset e.g., ?alarm=07:30
     const alarmParam = params.get('alarm');
     if (alarmParam) {
       const parts = alarmParam.split(':');
@@ -503,7 +619,6 @@
         const h = parseInt(parts[0], 10);
         const m = parseInt(parts[1], 10);
         if (!isNaN(h) && !isNaN(m)) {
-          // Add or replace alarm
           const existing = state.alarms.find(a => a.hours === h && a.minutes === m);
           if (existing) {
             existing.enabled = true;
@@ -525,7 +640,6 @@
       }
     }
 
-    // Check for timer preset e.g., ?timer=300 or ?timer=5m
     const timerParam = params.get('timer');
     if (timerParam) {
       let sec = 0;
@@ -559,7 +673,6 @@
 
   // --- Event Listeners Setup ---
   function initEvents() {
-    // Navigation tabs
     document.querySelectorAll('.clock-nav-link').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -568,7 +681,6 @@
       });
     });
 
-    // Night mode toggle button in header
     const nightToggleBtn = document.getElementById('nightModeToggleBtn');
     if (nightToggleBtn) {
       nightToggleBtn.addEventListener('click', () => {
@@ -578,13 +690,11 @@
       });
     }
 
-    // Fullscreen toggle button
     const fsBtn = document.getElementById('fullscreenBtn');
     if (fsBtn) {
       fsBtn.addEventListener('click', toggleFullscreen);
     }
 
-    // Test Sound buttons
     document.querySelectorAll('.test-sound-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const soundSelect = document.getElementById('editAlarmSound');
@@ -593,7 +703,7 @@
       });
     });
 
-    // Open Add/Edit Alarm Modal
+    // Alarm Modal
     let editingAlarmId = null;
     const alarmModalEl = document.getElementById('editAlarmModal');
     let alarmModalInstance = null;
@@ -615,7 +725,6 @@
       });
     }
 
-    // Save Alarm submit
     const saveAlarmBtn = document.getElementById('saveAlarmModalBtn');
     if (saveAlarmBtn) {
       saveAlarmBtn.addEventListener('click', () => {
@@ -657,7 +766,6 @@
       });
     }
 
-    // Delegated Alarm list actions (Toggle, Edit, Delete)
     const alarmContainer = document.getElementById('alarmListContainer');
     if (alarmContainer) {
       alarmContainer.addEventListener('click', (e) => {
@@ -708,7 +816,6 @@
       });
     }
 
-    // Quick preset alarms
     const presetsGrid = document.getElementById('alarmPresetsGrid');
     if (presetsGrid) {
       presetsGrid.addEventListener('click', (e) => {
@@ -736,7 +843,6 @@
       });
     }
 
-    // Stop ringing alarm
     const stopAlarmBtn = document.getElementById('stopAlarmBtn');
     if (stopAlarmBtn) {
       stopAlarmBtn.addEventListener('click', () => {
@@ -744,6 +850,67 @@
         const modalEl = document.getElementById('alarmRingingModal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
+      });
+    }
+
+    // World Clock actions
+    const saveCityModalBtn = document.getElementById('saveCityModalBtn');
+    if (saveCityModalBtn) {
+      saveCityModalBtn.addEventListener('click', () => {
+        const nameInput = document.getElementById('addCityNameInput');
+        const tzSelect = document.getElementById('addCityTimezoneSelect');
+        const name = nameInput ? nameInput.value.trim() : '';
+        const tz = tzSelect ? tzSelect.value : '';
+
+        if (name && tz) {
+          state.worldCities.push({
+            id: Date.now().toString(),
+            name,
+            tz
+          });
+          saveSettings();
+          renderWorldClockTiles();
+          if (nameInput) nameInput.value = '';
+          const modalEl = document.getElementById('addCityModal');
+          const instance = bootstrap.Modal.getInstance(modalEl);
+          if (instance) instance.hide();
+        }
+      });
+    }
+
+    const worldTilesGrid = document.getElementById('worldClockTilesGrid');
+    if (worldTilesGrid) {
+      worldTilesGrid.addEventListener('click', (e) => {
+        const rmBtn = e.target.closest('.remove-city-btn');
+        if (rmBtn) {
+          const id = rmBtn.getAttribute('data-id');
+          state.worldCities = state.worldCities.filter(c => c.id !== id);
+          saveSettings();
+          renderWorldClockTiles();
+        }
+      });
+    }
+
+    const popularGrid = document.getElementById('popularCitiesGrid');
+    if (popularGrid) {
+      popularGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.add-popular-city-btn');
+        if (btn) {
+          const name = btn.getAttribute('data-name');
+          const tz = btn.getAttribute('data-tz');
+          if (name && tz) {
+            const existing = state.worldCities.find(c => c.name === name && c.tz === tz);
+            if (!existing) {
+              state.worldCities.push({
+                id: Date.now().toString(),
+                name,
+                tz
+              });
+              saveSettings();
+              renderWorldClockTiles();
+            }
+          }
+        }
       });
     }
 
@@ -764,7 +931,6 @@
       });
     }
 
-    // Quick timer preset buttons
     document.querySelectorAll('.quick-timer-preset').forEach(btn => {
       btn.addEventListener('click', () => {
         const sec = parseInt(btn.getAttribute('data-sec'), 10);
@@ -773,7 +939,6 @@
       });
     });
 
-    // Custom Timer Set Modal Save
     const saveCustomTimerBtn = document.getElementById('saveCustomTimerBtn');
     if (saveCustomTimerBtn) {
       saveCustomTimerBtn.addEventListener('click', () => {
@@ -804,7 +969,7 @@
     const swLapBtn = document.getElementById('stopwatchLapBtn');
     if (swLapBtn) swLapBtn.addEventListener('click', lapStopwatch);
 
-    // Settings Modal Inputs
+    // Settings Modal
     const setFont = document.getElementById('settingDigitalFont');
     if (setFont) {
       setFont.addEventListener('change', (e) => {
@@ -821,6 +986,7 @@
         applySettingsUI();
         saveSettings();
         renderAlarms();
+        renderWorldClockTiles();
         updateClockDisplays();
       });
     }
@@ -844,7 +1010,6 @@
       });
     }
 
-    // Color palette selection
     document.querySelectorAll('.color-dot').forEach(dot => {
       dot.addEventListener('click', () => {
         const chosenColor = dot.getAttribute('data-color');
@@ -863,18 +1028,19 @@
     applySettingsUI();
     renderAlarms();
     renderPresetTimes();
+    renderWorldClockTiles();
+    renderPopularCities();
+    populateTimezoneSelect();
     updateTimerDisplay();
     updateStopwatchDisplay();
     renderLaps();
     initEvents();
     parseUrlParams();
 
-    // Start clock interval
     updateClockDisplays();
     setInterval(updateClockDisplays, 1000);
   }
 
-  // Run on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

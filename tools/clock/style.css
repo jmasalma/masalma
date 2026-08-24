@@ -1,4 +1,4 @@
-/* vClock inspired stylesheet for masalma tools/clock */
+/* Stylesheet for Masalma Clock App */
 :root {
   --bg-color: #f8f9fa;
   --text-color: #212529;
@@ -110,7 +110,7 @@ body.night-mode .digital-clock-display {
 }
 
 /* Cards & Containers */
-.vclock-card {
+.clock-card {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 0.75rem;
