@@ -119,6 +119,11 @@ body.night-mode .digital-clock-display {
   margin-bottom: 1.5rem;
 }
 
+.alarm-countdown-text {
+  font-size: 0.9em;
+  color: var(--clock-color) !important;
+}
+
 /* Preset buttons grid */
 .preset-grid {
   display: grid;

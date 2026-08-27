@@ -308,6 +308,16 @@
     // Update World Clock tiles real time
     updateWorldClockTiles(now);
 
+    // Update countdown for active alarms
+    state.alarms.forEach(alarm => {
+      if (alarm.enabled) {
+        const cdEl = document.getElementById(`alarm-cd-${alarm.id}`);
+        if (cdEl) {
+          cdEl.innerHTML = `<i class="bi bi-hourglass-split me-1"></i>in ${getCountdownTime(alarm.hours, alarm.minutes, now)}`;
+        }
+      }
+    });
+
     const currentHour = now.getHours();
     const currentMin = now.getMinutes();
     const currentSec = now.getSeconds();
@@ -364,11 +374,15 @@
       return;
     }
 
+    const now = new Date();
     container.innerHTML = state.alarms.map(alarm => `
       <div class="clock-card d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
           <div class="h2 mb-0 fw-bold">${formatAlarmTimeStr(alarm.hours, alarm.minutes)}</div>
-          <div class="text-muted small">${alarm.title || 'Alarm'} ${alarm.enabled ? '<span class="badge bg-success ms-2">Active</span>' : ''}</div>
+          <div class="text-muted small">
+            ${alarm.title || 'Alarm'}
+            ${alarm.enabled ? `<span class="badge bg-success ms-2">Active</span> <span class="alarm-countdown-text ms-2 font-monospace text-primary fw-semibold" id="alarm-cd-${alarm.id}"><i class="bi bi-hourglass-split me-1"></i>in ${getCountdownTime(alarm.hours, alarm.minutes, now)}</span>` : ''}
+          </div>
         </div>
         <div class="d-flex align-items-center gap-2">
           <div class="form-check form-switch fs-4 mb-0 me-3">
@@ -603,40 +617,112 @@
     });
   }
 
-  // --- URL Query Params ---
-  function parseUrlParams() {
+  // --- Helper Functions for Alarm & Countdown ---
+  function mapSoundPreset(soundInput) {
+    if (!soundInput) return 'digital';
+    const s = soundInput.toLowerCase();
+    if (s === 'classic' || s === 'bell' || s === 'ring') return 'bell';
+    if (s === 'chime' || s === 'gentle') return 'chime';
+    if (s === 'marimba') return 'marimba';
+    if (s === 'digital' || s === 'beep' || s === 'electronic') return 'digital';
+    return 'digital';
+  }
+
+  function parseTimeString(timeStr) {
+    if (!timeStr) return null;
+    const str = decodeURIComponent(timeStr).trim().toUpperCase();
+    const isPM = str.includes('PM');
+    const isAM = str.includes('AM');
+    const cleanStr = str.replace(/(AM|PM)/g, '').trim();
+    const parts = cleanStr.split(':');
+    if (parts.length >= 2) {
+      let h = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      if (!isNaN(h) && !isNaN(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+        if (isPM && h < 12) h += 12;
+        if (isAM && h === 12) h = 0;
+        return { hours: h, minutes: m };
+      }
+    }
+    return null;
+  }
+
+  function getCountdownTime(alarmHours, alarmMinutes, nowObj) {
+    const now = nowObj || new Date();
+    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), alarmHours, alarmMinutes, 0, 0);
+    if (target <= now) {
+      target.setDate(target.getDate() + 1);
+    }
+    const diffMs = target - now;
+    const totalSecs = Math.floor(diffMs / 1000);
+    const hrs = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+
+    if (hrs > 0) {
+      return `${hrs}h ${mins}m ${secs}s`;
+    } else if (mins > 0) {
+      return `${mins}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
+  }
+
+  // --- URL Query & Hash Params ---
+  function getCombinedParams() {
     const params = new URLSearchParams(window.location.search);
+    const rawHash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+
+    if (rawHash) {
+      if (rawHash.includes('=')) {
+        const hashParams = new URLSearchParams(rawHash);
+        hashParams.forEach((val, key) => {
+          params.set(key, val);
+        });
+      } else if (['alarm', 'world', 'timer', 'stopwatch', 'clock'].includes(rawHash)) {
+        params.set('tab', rawHash);
+      }
+    }
+    return params;
+  }
+
+  function parseUrlParams() {
+    const params = getCombinedParams();
 
     const tabParam = params.get('tab');
     if (tabParam && ['alarm', 'world', 'timer', 'stopwatch', 'clock'].includes(tabParam)) {
       switchTab(tabParam);
     }
 
-    const alarmParam = params.get('alarm');
-    if (alarmParam) {
-      const parts = alarmParam.split(':');
-      if (parts.length === 2) {
-        const h = parseInt(parts[0], 10);
-        const m = parseInt(parts[1], 10);
-        if (!isNaN(h) && !isNaN(m)) {
-          const existing = state.alarms.find(a => a.hours === h && a.minutes === m);
-          if (existing) {
-            existing.enabled = true;
-          } else {
-            state.alarms.push({
-              id: Date.now().toString(),
-              hours: h,
-              minutes: m,
-              enabled: true,
-              title: 'Alarm',
-              sound: 'digital',
-              repeatSound: true
-            });
-          }
-          saveSettings();
-          renderAlarms();
-          switchTab('alarm');
+    const timeParam = params.get('time') || params.get('alarm');
+    if (timeParam) {
+      const parsed = parseTimeString(timeParam);
+      if (parsed) {
+        const title = params.get('title') || 'Alarm';
+        const sound = mapSoundPreset(params.get('sound'));
+        const loopParam = params.get('loop');
+        const repeatSound = loopParam !== '0' && loopParam !== 'false';
+
+        const existing = state.alarms.find(a => a.hours === parsed.hours && a.minutes === parsed.minutes);
+        if (existing) {
+          existing.enabled = true;
+          existing.title = title;
+          existing.sound = sound;
+          existing.repeatSound = repeatSound;
+        } else {
+          state.alarms.push({
+            id: Date.now().toString(),
+            hours: parsed.hours,
+            minutes: parsed.minutes,
+            enabled: true,
+            title,
+            sound,
+            repeatSound
+          });
         }
+        saveSettings();
+        renderAlarms();
+        switchTab('alarm');
       }
     }
 
